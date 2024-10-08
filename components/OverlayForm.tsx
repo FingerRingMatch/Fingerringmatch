@@ -26,7 +26,7 @@ function OverlayForm() {
     language: Yup.string().required('Required')
   });
 
-  const handleSubmit = (values) => {
+  const handleSubmit = (values: any) => {
     console.log(values);
   };
 
