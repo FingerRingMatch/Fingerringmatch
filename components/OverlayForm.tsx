@@ -1,16 +1,25 @@
-'use client'
+'use client';
 import React from 'react';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { Formik, Form, Field, ErrorMessage, FormikHelpers } from 'formik';
 import * as Yup from 'yup';
 
+// Define the form's initial values and the shape of form data
+interface FormValues {
+  gender: string;
+  ageFrom: number | '';
+  ageTo: number | '';
+  religion: string;
+  language: string;
+}
+
 function OverlayForm() {
-  const HeartSVG = () => (
+  const HeartSVG: React.FC = () => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
       <path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z" />
     </svg>
   );
 
-  const initialValues = {
+  const initialValues: FormValues = {
     gender: '',
     ageFrom: '',
     ageTo: '',
@@ -21,19 +30,26 @@ function OverlayForm() {
   const validationSchema = Yup.object({
     gender: Yup.string().required('Required'),
     ageFrom: Yup.number().min(18, 'Minimum age is 18').required('Required'),
-    ageTo: Yup.number().min(Yup.ref('ageFrom'), 'Age To must be greater than Age From').required('Required'),
+    ageTo: Yup.number()
+      .min(Yup.ref('ageFrom'), 'Age To must be greater than Age From')
+      .required('Required'),
     religion: Yup.string().required('Required'),
     language: Yup.string().required('Required')
   });
 
-  const handleSubmit = (values: any) => {
+  const handleSubmit = (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
     console.log(values);
+    setSubmitting(false);
   };
 
   return (
     <div>
       <div className="absolute bottom-10 left-0 right-0 mx-40 bg-black bg-opacity-50 p-6 shadow-lg text-white rounded-tl-xl rounded-tr-xl">
-        <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={handleSubmit}>
+        <Formik
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
           {({ isSubmitting }) => (
             <Form className="max-w-4xl mx-auto grid grid-cols-2 gap-4">
               <div>
