@@ -24,7 +24,7 @@ const LoadingAnimation = () => {
       animate={{ rotate: 360, scale: [1, 1.2, 1] }}
       transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
     >
-      <Image src="/Logo.jpg" height={80} width={80} alt={''}/>
+      <Image src="/Logo.jpg" height={80} width={80} alt='Logo' priority/>
     </motion.div>
   );
 };
