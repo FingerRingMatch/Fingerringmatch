@@ -29,7 +29,7 @@ const Hero = () => {
     >
       {/* Responsive Navigation Bar */}
       <nav className="fixed top-0 left-48 w-full flex justify-between items-center  text-white bg-transparent pt-4 ">
-        <Image src="/Head_Logo3.png" alt="Logo" width={150} height={150}  priority/>
+        <Image src="/Head_Logo.png" alt="Logo" width={150} height={150}  priority/>
         
         {/* Desktop Menu */}
         <div className="hidden md:flex space-x-20 font-poppins items-center font-semibold mr-60">
