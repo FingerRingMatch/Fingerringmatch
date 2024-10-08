@@ -5,7 +5,7 @@ import Success_Stories from "@/components/Success_Stories";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import React, {useState} from 'react'
-import logo from '../public/Logo.jpg'
+
 
 export default function Home() {
 
@@ -24,7 +24,7 @@ const LoadingAnimation = () => {
       animate={{ rotate: 360, scale: [1, 1.2, 1] }}
       transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
     >
-      <Image src={logo} height={80} width={80} alt={''}/>
+      <Image src="/Logo.jpg" height={80} width={80} alt={''}/>
     </motion.div>
   );
 };
