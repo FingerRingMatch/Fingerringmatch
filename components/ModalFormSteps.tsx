@@ -1,9 +1,9 @@
 import React from 'react';
 import { relationOptions, religionOptions, languageOptions, countryOptions } from './formOptions';
-import { Formik, Form, Field, ErrorMessage, FormikErrors, FormikTouched } from 'formik';
-import { modalFormValidationSchema } from './ValidationSchema';
+import { Field, ErrorMessage, FormikErrors, FormikTouched } from 'formik';
 
-interface ModalFormValues {
+
+export interface ModalFormValues {
   relation: string;
   gender: string;
   name: string;

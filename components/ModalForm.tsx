@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Formik, Form, FormikHelpers } from 'formik';
 import { modalFormValidationSchema } from './ValidationSchema';
 import ModalFormStep from './ModalFormSteps';
+import { ModalFormValues } from './ModalFormSteps';
 
 interface ModalFormProps {
   onClose: () => void;
@@ -31,8 +32,8 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose }) => {
   };
 
   const handleSubmit = (
-    values: any,
-    { setSubmitting }: FormikHelpers<any>
+    values: ModalFormValues,
+    { setSubmitting }: FormikHelpers<ModalFormValues>
   ) => {
     console.log(values);
     setSubmitting(false);
