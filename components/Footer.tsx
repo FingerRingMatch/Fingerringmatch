@@ -18,7 +18,7 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 text-gray-600">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8 ml-16 text-gray-600">
           {/* Need Help Section */}
           <div>
             <h4 className="text-lg font-semibold mb-2">Need Help?</h4>

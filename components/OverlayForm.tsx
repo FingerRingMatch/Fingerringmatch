@@ -42,7 +42,8 @@ function OverlayForm() {
         >
           {({ isSubmitting }) => (
             <Form className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
+              {/* Looking for */}
+              <div className="w-full">
                 <label className="block text-sm font-medium mb-1" htmlFor="gender">Looking for</label>
                 <Field as="select" name="gender" className="w-full bg-white text-gray-500 p-2 rounded-lg outline-none">
                   <option value="" label="Select gender" />
@@ -51,16 +52,20 @@ function OverlayForm() {
                 </Field>
                 <ErrorMessage name="gender" component="div" className="text-red-500 text-sm mt-1" />
               </div>
-              <div>
+
+              {/* Age Range */}
+              <div className="w-full">
                 <label className="block text-sm font-medium mb-1" htmlFor="ageRange">Age Range</label>
-                <div className="flex flex-col sm:flex-row space-x-0 gap-2 sm:space-x-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <Field type="number" name="ageFrom" placeholder="From" className="w-full bg-white text-gray-500 p-2 rounded-lg outline-none" min={18} />
                   <Field type="number" name="ageTo" placeholder="To" className="w-full bg-white text-gray-500 p-2 rounded-lg outline-none" />
                 </div>
                 <ErrorMessage name="ageFrom" component="div" className="text-red-500 text-sm mt-1" />
                 <ErrorMessage name="ageTo" component="div" className="text-red-500 text-sm mt-1" />
               </div>
-              <div>
+
+              {/* Religion */}
+              <div className="w-full">
                 <label className="block text-sm font-medium mb-1" htmlFor="religion">Religion</label>
                 <Field as="select" name="religion" className="w-full bg-white text-gray-500 p-2 rounded-lg mb-2 border border-black">
                   <option value="">Select religion</option>
@@ -72,7 +77,9 @@ function OverlayForm() {
                 </Field>
                 <ErrorMessage name="religion" component="div" className="text-red-500 text-sm mt-1" />
               </div>
-              <div>
+
+              {/* Mother Tongue */}
+              <div className="w-full">
                 <label className="block text-sm font-medium mb-1" htmlFor="language">Mother Tongue</label>
                 <Field as="select" name="language" className="w-full bg-white text-gray-500 p-2 rounded-lg mb-2 border border-black">
                   <option value="">Select language</option>
@@ -84,7 +91,9 @@ function OverlayForm() {
                 </Field>
                 <ErrorMessage name="language" component="div" className="text-red-500 text-sm mt-1" />
               </div>
-              <div className="col-span-2">
+
+              {/* Submit Button */}
+              <div className="col-span-1 sm:col-span-2">
                 <button
                   type="submit"
                   className="w-full flex items-center justify-center bg-primaryPink hover:bg-primaryGreen transition-all duration-300 p-2 rounded-full"
@@ -100,7 +109,7 @@ function OverlayForm() {
           )}
         </Formik>
       </div>
-      {showModal && <ModalForm onClose={() => setShowModal(false)} />}
+      {showModal && <ModalForm onClose={() => setShowModal(false)} onSubmit={(values) => console.log('Modal submitted:', values)} />}
     </div>
   );
 }

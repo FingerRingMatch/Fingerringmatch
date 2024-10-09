@@ -83,7 +83,6 @@ export const relationOptions = [
     { value: 'south_korea', label: 'South Korea' },
     { value: 'china', label: 'China' },
     { value: 'taiwan', label: 'Taiwan' },
-    { value: 'nepal', label: 'Nepal' },
     { value: 'africa', label: 'Africa' },
     { value: 'europe', label: 'Europe' },
     { value: 'australia', label: 'Australia' },

@@ -1,17 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Formik, Form, FormikHelpers } from 'formik';
+import { ModalFormSteps } from './ModalFormSteps';
 import { modalFormValidationSchema } from './ValidationSchema';
-import ModalFormStep from './ModalFormSteps';
-import { ModalFormValues } from './ModalFormSteps';
 
 interface ModalFormProps {
   onClose: () => void;
+  onSubmit: (values: ModalFormValues) => void;
 }
 
-export const ModalForm: React.FC<ModalFormProps> = ({ onClose }) => {
-  const [step, setStep] = useState<number>(1);
+interface ModalFormValues {
+  relation: string;
+  gender: string;
+  name: string;
+  dob: string;
+  religion: string;
+  language: string;
+  country: string;
+  email: string;
+  phone: string;
+}
 
-  const initialValues = {
+export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
+  const [step, setStep] = useState(0);
+
+  const initialValues: ModalFormValues = {
     relation: '',
     gender: '',
     name: '',
@@ -23,65 +35,56 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose }) => {
     phone: '',
   };
 
-  const handlePrevious = () => {
-    if (step > 1) {
-      setStep(step - 1);
-    } else {
-      onClose();
-    }
-  };
-
   const handleSubmit = (
     values: ModalFormValues,
     { setSubmitting }: FormikHelpers<ModalFormValues>
   ) => {
-    console.log(values);
+    onSubmit(values);
     setSubmitting(false);
     onClose();
   };
 
+  const getNextStep = useCallback(
+    (currentStep: number, values: ModalFormValues) => {
+      if (currentStep === 0 && (values.relation === 'son' || values.relation === 'daughter')) {
+        return 2; // Skip gender step
+      }
+      return currentStep + 1;
+    },
+    []
+  );
+
+  const getPreviousStep = useCallback(
+    (currentStep: number, values: ModalFormValues) => {
+      if (currentStep === 2 && (values.relation === 'son' || values.relation === 'daughter')) {
+        return 0; // Go back to relation step
+      }
+      return currentStep - 1;
+    },
+    []
+  );
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg w-96">
+      <div className="bg-white p-6 rounded-lg w-96 max-h-[90vh] overflow-y-auto">
         <Formik
           initialValues={initialValues}
           validationSchema={modalFormValidationSchema}
           onSubmit={handleSubmit}
         >
-          {({ values, errors, touched, isSubmitting }) => (
+          {({ isValid, errors, touched, values }) => (
             <Form>
-              <ModalFormStep 
-                step={step} 
-                values={values} 
-                errors={errors} 
-                touched={touched} 
+              <ModalFormSteps
+                step={step}
+                setStep={setStep}
+                isValid={isValid}
+                errors={errors}
+                touched={touched}
+                values={values}
+                onClose={onClose}
+                getNextStep={getNextStep}
+                getPreviousStep={getPreviousStep}
               />
-              <div className="flex justify-between mt-4">
-                <button 
-                  type="button" 
-                  onClick={handlePrevious} 
-                  className="bg-gray-300 text-gray-700 px-4 py-2 rounded"
-                >
-                  Previous
-                </button>
-                {step < 6 ? (
-                  <button 
-                    type="button" 
-                    onClick={() => setStep(step + 1)} 
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
-                  >
-                    Next
-                  </button>
-                ) : (
-                  <button 
-                    type="submit" 
-                    disabled={isSubmitting} 
-                    className="bg-green-500 text-white px-4 py-2 rounded"
-                  >
-                    Submit
-                  </button>
-                )}
-              </div>
             </Form>
           )}
         </Formik>
