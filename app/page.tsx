@@ -5,6 +5,7 @@ import Success_Stories from "@/components/Success_Stories";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import React, {useState} from 'react'
+import Footer from "@/components/Footer";
 
 
 export default function Home() {
@@ -43,6 +44,7 @@ if (isLoading) {
       <Hero/>
       <Special_Someone/>
       <Success_Stories/>
+      <Footer/>
     </div>
   );
 }

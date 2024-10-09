@@ -1,0 +1,92 @@
+export const relationOptions = [
+    { value: 'self', label: 'Self' },
+    { value: 'son', label: 'My Son' },
+    { value: 'daughter', label: 'My Daughter' },
+    { value: 'relative', label: 'Relative' },
+    { value: 'friend', label: 'Friend' }
+  ];
+  export const religionOptions = [
+    { value: 'christianity', label: 'Christianity' },
+    { value: 'islam', label: 'Islam' },
+    { value: 'hinduism', label: 'Hinduism' },
+    { value: 'buddhism', label: 'Buddhism' },
+    { value: 'judaism', label: 'Judaism' },
+    { value: 'sikhism', label: 'Sikhism' },
+    { value: 'bahai', label: 'Baháʼí Faith' },
+    { value: 'jainism', label: 'Jainism' },
+    { value: 'zoroastrianism', label: 'Zoroastrianism' },
+    { value: 'shinto', label: 'Shinto' },
+    { value: 'taoism', label: 'Taoism' },
+    { value: 'confucianism', label: 'Confucianism' },
+    { value: 'spirituality', label: 'Spiritual but not religious' },
+    { value: 'atheism', label: 'Atheism' },
+    { value: 'agnosticism', label: 'Agnosticism' },
+    { value: 'paganism', label: 'Paganism' },
+    { value: 'animism', label: 'Animism' },
+    { value: 'ras tafari', label: 'Rastafari' },
+    { value: 'indigenous', label: 'Indigenous Religions' },
+    { value: 'unitarian', label: 'Unitarian Universalism' },
+    { value: 'humanism', label: 'Secular Humanism' },
+    { value: 'church_of_scientology', label: 'Church of Scientology' },
+    { value: 'new_age', label: 'New Age' },
+    { value: 'other', label: 'Other' }
+  ];
+  
+  
+  export const languageOptions = [
+    { value: 'hindi', label: 'Hindi' },
+    { value: 'english', label: 'English' },
+    { value: 'bengali', label: 'Bengali' },
+    { value: 'telugu', label: 'Telugu' },
+    { value: 'marathi', label: 'Marathi' },
+    { value: 'tamil', label: 'Tamil' },
+    { value: 'urdu', label: 'Urdu' },
+    { value: 'gujarati', label: 'Gujarati' },
+    { value: 'malayalam', label: 'Malayalam' },
+    { value: 'kannada', label: 'Kannada' },
+    { value: 'odia', label: 'Odia' },
+    { value: 'punjabi', label: 'Punjabi' },
+    { value: 'assamese', label: 'Assamese' },
+    { value: 'maithili', label: 'Maithili' },
+    { value: 'sanskrit', label: 'Sanskrit' },
+    { value: 'manipuri', label: 'Manipuri' },
+    { value: 'nepali', label: 'Nepali' },
+    { value: 'dogri', label: 'Dogri' },
+    { value: 'bodo', label: 'Bodo' },
+    { value: 'santhali', label: 'Santhali' },
+    { value: 'kashmiri', label: 'Kashmiri' },
+    { value: 'hindi-urdu', label: 'Hindi-Urdu' },
+    { value: 'other', label: 'Other' }
+  ];
+  
+  
+  export const countryOptions = [
+    { value: 'india', label: 'India' },
+    { value: 'afghanistan', label: 'Afghanistan' },
+    { value: 'bangladesh', label: 'Bangladesh' },
+    { value: 'bhutan', label: 'Bhutan' },
+    { value: 'nepal', label: 'Nepal' },
+    { value: 'pakistan', label: 'Pakistan' },
+    { value: 'sri_lanka', label: 'Sri Lanka' },
+    { value: 'maldives', label: 'Maldives' },
+    { value: 'myanmar', label: 'Myanmar' },
+    { value: 'thailand', label: 'Thailand' },
+    { value: 'malaysia', label: 'Malaysia' },
+    { value: 'singapore', label: 'Singapore' },
+    { value: 'indonesia', label: 'Indonesia' },
+    { value: 'philippines', label: 'Philippines' },
+    { value: 'vietnam', label: 'Vietnam' },
+    { value: 'brunei', label: 'Brunei' },
+    { value: 'laos', label: 'Laos' },
+    { value: 'cambodia', label: 'Cambodia' },
+    { value: 'japan', label: 'Japan' },
+    { value: 'south_korea', label: 'South Korea' },
+    { value: 'china', label: 'China' },
+    { value: 'taiwan', label: 'Taiwan' },
+    { value: 'nepal', label: 'Nepal' },
+    { value: 'africa', label: 'Africa' },
+    { value: 'europe', label: 'Europe' },
+    { value: 'australia', label: 'Australia' },
+    { value: 'other', label: 'Other' }
+  ];
+  
