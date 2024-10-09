@@ -22,7 +22,7 @@ interface ModalFormStepProps {
   touched: FormikTouched<ModalFormValues>;
 }
 
-const ModalFormStep: React.FC<ModalFormStepProps> = ({ step, values, errors, touched }) => {
+const ModalFormStep: React.FC<ModalFormStepProps> = ({ step, values}) => {
   const getDynamicLabel = (relation: string, gender: string, field: 'name' | 'dob'): string => {
     if (relation === 'self') {
       return `Your ${field === 'name' ? 'Name' : 'Date of Birth'}`;
