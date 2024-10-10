@@ -72,14 +72,13 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
           validationSchema={modalFormValidationSchema}
           onSubmit={handleSubmit}
         >
-          {({ isValid, errors, touched, values }) => (
+          {({ isValid, errors, values }) => (
             <Form>
               <ModalFormSteps
                 step={step}
                 setStep={setStep}
                 isValid={isValid}
                 errors={errors}
-                touched={touched}
                 values={values}
                 onClose={onClose}
                 getNextStep={getNextStep}

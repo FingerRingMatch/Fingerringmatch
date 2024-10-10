@@ -27,7 +27,6 @@ interface ModalFormStepsProps {
   setStep: (step: number) => void;
   isValid: boolean;
   errors: Partial<Record<keyof FormValues, string>>;
-  touched: Partial<Record<keyof FormValues, boolean>>;
   values: FormValues;
   onClose: () => void;
   getNextStep: (currentStep: number, values: FormValues) => number;
@@ -39,7 +38,6 @@ export const ModalFormSteps: React.FC<ModalFormStepsProps> = ({
   setStep,
   isValid,
   errors,
-  touched,
   values,
   onClose,
   getNextStep,
