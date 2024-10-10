@@ -3,6 +3,7 @@ import React from 'react';
 const Footer: React.FC = () => {
   return (
     <footer className="bg-gray-100 py-8 border-t border-gray-200">
+      
       <div className="container mx-auto px-6">
         {/* Top Section */}
         <div className="flex flex-col md:flex-row justify-center text-primaryPink space-x-0 md:space-x-12 mb-8">
@@ -16,9 +17,9 @@ const Footer: React.FC = () => {
             <p className="text-lg font-semibold">100% Privacy</p>
           </div>
         </div>
-
+        <div className=' flex justify-center'>
         {/* Bottom Section */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8 ml-16 text-gray-600">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-8  text-gray-600">
           {/* Need Help Section */}
           <div>
             <h4 className="text-lg font-semibold mb-2">Need Help?</h4>
@@ -71,6 +72,7 @@ const Footer: React.FC = () => {
             </ul>
           </div>
         </div>
+      </div>
       </div>
       <div className="text-center text-gray-500 py-4">
         &copy; {new Date().getFullYear()} Your Company. All Rights Reserved.

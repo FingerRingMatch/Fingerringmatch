@@ -189,72 +189,74 @@ export const ModalFormSteps: React.FC<ModalFormStepsProps> = ({
   };
 
   return (
-    <>
-      <h2 className="text-xl font-bold mb-4">{currentStep.title}</h2>
-      
+    <div className="flex flex-col h-full"> {/* Added flexbox */}
+    <h2 className="text-xl text-center font-bold mb-4">{currentStep.title}</h2>
+
+    <div className="flex-grow"> {/* Allows form fields to grow */}
       {currentStep.fields.map((field) => (
         <div key={field} className="mb-4">
           {renderField(field as keyof FormValues)}
           <ErrorMessage name={field} component="div" className="text-red-500 text-sm mt-1" />
         </div>
       ))}
+    </div>
 
-      <div className="flex justify-between mt-4">
+    <div className="flex justify-between mt-4"> {/* Buttons positioned at the bottom */}
+      <button
+        type="button"
+        onClick={() => {
+          if (step > 0) {
+            setStep(getPreviousStep(step, values));
+          } else {
+            onClose();
+          }
+        }}
+        className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition-colors"
+      >
+        {step > 0 ? 'Previous' : 'Cancel'}
+      </button>
+      
+      {step < formSteps.length - 1 ? (
         <button
           type="button"
           onClick={() => {
-            if (step > 0) {
-              setStep(getPreviousStep(step, values));
-            } else {
-              onClose();
+            const stepFields = currentStep.fields;
+            const stepIsValid = stepFields.every(
+              field => !errors[field as keyof FormValues] 
+            );
+            if (stepIsValid) {
+              if (values.relation === 'son') {
+                values.gender = 'male';
+              } else if (values.relation === 'daughter') {
+                values.gender = 'female';
+              }
+              setStep(getNextStep(step, values));
             }
           }}
-          className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition-colors"
+          className={`px-4 py-2 rounded transition-colors ${
+            currentStep.fields.every(
+              field => !errors[field as keyof FormValues]
+            )
+              ? 'bg-blue-500 text-white hover:bg-blue-600'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
         >
-          {step > 0 ? 'Previous' : 'Cancel'}
+          Next
         </button>
-        
-        {step < formSteps.length - 1 ? (
-          <button
-            type="button"
-            onClick={() => {
-              const stepFields = currentStep.fields;
-              const stepIsValid = stepFields.every(
-                field => !errors[field as keyof FormValues] && touched[field as keyof FormValues]
-              );
-              if (stepIsValid) {
-                if (values.relation === 'son') {
-                  values.gender = 'male';
-                } else if (values.relation === 'daughter') {
-                  values.gender = 'female';
-                }
-                setStep(getNextStep(step, values));
-              }
-            }}
-            className={`px-4 py-2 rounded transition-colors ${
-              currentStep.fields.every(
-                field => !errors[field as keyof FormValues] && touched[field as keyof FormValues]
-              )
-                ? 'bg-blue-500 text-white hover:bg-blue-600'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            Next
-          </button>
-        ) : (
-          <button
-            type="submit"
-            disabled={!isValid}
-            className={`px-4 py-2 rounded transition-colors ${
-              isValid
-                ? 'bg-green-500 text-white hover:bg-green-600'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            }`}
-          >
-            Submit
-          </button>
-        )}
-      </div>
-    </>
+      ) : (
+        <button
+          type="submit"
+          disabled={!isValid}
+          className={`px-4 py-2 rounded transition-colors ${
+            isValid
+              ? 'bg-green-500 text-white hover:bg-green-600'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
+        >
+          Submit
+        </button>
+      )}
+    </div>
+  </div>
   );
 };
