@@ -22,11 +22,8 @@ const Login: React.FC<LoginProps> = ({ onClose }) => {
       console.error('Error signing in:', error);
     }
   };
-  const handleSignUp = (e: React.FormEvent) => {
-
+  const handleSignUp = () => {
     setShowModal(true);
-    
-    
   }
 
   const handleGoogleSignIn = async () => {
