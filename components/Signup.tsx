@@ -13,11 +13,16 @@ interface StoredFormData {
   [key: string]: string;
 }
 
+interface FirebaseError {
+  code: string;
+  message: string;
+}
+
 const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [storedData, setStoredData] = useState<StoredFormData | null>(null);
 
   useEffect(() => {
@@ -31,7 +36,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError(null);
 
     if (password !== confirmPassword) {
       setError('Passwords do not match. Please ensure both passwords are identical.');
@@ -46,23 +51,31 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     try {
       await signUpWithEmail(email, password);
       if (storedData) {
-        // Implement your logic to send storedData to the backend
         console.log('Sending stored data to backend:', storedData);
       }
-      localStorage.removeItem('modalFormValues'); // Clear stored data after successful sign-up
+      localStorage.removeItem('modalFormValues');
       onClose();
-    } catch (error: any) {
-      // Handle specific error types
-      if (error.code === 'auth/email-already-in-use') {
-        setError('This email is already registered. Please try logging in or use a different email.');
-      } else if (error.code === 'auth/invalid-email') {
-        setError('The email address is not valid. Please check and try again.');
-      } else if (error.code === 'auth/weak-password') {
-        setError('The password is too weak. Please choose a stronger password.');
-      } else if (error.code === 'auth/network-request-failed') {
-        setError('Network error. Please check your internet connection and try again.');
+    } catch (err: unknown) {
+      if (typeof err === 'object' && err !== null && 'code' in err && 'message' in err) {
+        const error = err as FirebaseError;
+        switch (error.code) {
+          case 'auth/email-already-in-use':
+            setError('This email is already registered. Please try logging in or use a different email.');
+            break;
+          case 'auth/invalid-email':
+            setError('The email address is not valid. Please check and try again.');
+            break;
+          case 'auth/weak-password':
+            setError('The password is too weak. Please choose a stronger password.');
+            break;
+          case 'auth/network-request-failed':
+            setError('Network error. Please check your internet connection and try again.');
+            break;
+          default:
+            setError(`An unexpected error occurred: ${error.message}`);
+        }
       } else {
-        setError(`An unexpected error occurred: ${error.message}`);
+        setError('An unexpected error occurred.');
       }
     }
   };
@@ -71,21 +84,28 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     try {
       await signInWithGoogle();
       if (storedData) {
-        // Implement your logic to send storedData to the backend
         console.log('Sending stored data to backend:', storedData);
       }
       localStorage.removeItem('modalFormValues');
       onClose();
-    } catch (error: any) {
-      // Handle specific Google Sign-In errors
-      if (error.code === 'auth/popup-closed-by-user') {
-        setError('Sign-up was cancelled. Please try again.');
-      } else if (error.code === 'auth/popup-blocked') {
-        setError('Pop-up was blocked by your browser. Please allow pop-ups for this site and try again.');
-      } else if (error.code === 'auth/account-exists-with-different-credential') {
-        setError('An account already exists with the same email address but different sign-in credentials. Please sign in using the original method.');
+    } catch (err: unknown) {
+      if (typeof err === 'object' && err !== null && 'code' in err && 'message' in err) {
+        const error = err as FirebaseError;
+        switch (error.code) {
+          case 'auth/popup-closed-by-user':
+            setError('Sign-up was cancelled. Please try again.');
+            break;
+          case 'auth/popup-blocked':
+            setError('Pop-up was blocked by your browser. Please allow pop-ups for this site and try again.');
+            break;
+          case 'auth/account-exists-with-different-credential':
+            setError('An account already exists with the same email address but different sign-in credentials. Please sign in using the original method.');
+            break;
+          default:
+            setError(`An error occurred during Google sign-up: ${error.message}`);
+        }
       } else {
-        setError(`An error occurred during Google sign-up: ${error.message}`);
+        setError('An unexpected error occurred.');
       }
     }
   };

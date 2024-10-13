@@ -62,7 +62,7 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
     };
 
     const validateStep = (currentStep: number, values: ModalFormValues) => {
-        let errors: { [key: string]: string } = {};
+        const errors: { [key: string]: string } = {};
         switch (currentStep) {
             case 1:
                 if (!values.relation) errors.relation = 'Relation is required';
@@ -132,7 +132,7 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
                     onSubmit={handleSubmit}
                     enableReinitialize
                 >
-                    {({ isValid, errors, values, setTouched, setErrors }) => (
+                    {({ isValid, values, setTouched, setErrors }) => (
                         <Form className="flex flex-col h-full">
                             <Transition
                         show={step === 1}

@@ -4,7 +4,6 @@ import { Formik, Form, Field, ErrorMessage, FormikHelpers, FormikTouched, Formik
 import * as Yup from 'yup';
 import { Transition } from '@headlessui/react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import SignUp from './Signup';
 
 interface FormValues {
@@ -53,8 +52,6 @@ const CreateProfile: React.FC = () => {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
 
-  const router = useRouter();
-
   const handleSubmit = (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
     console.log(values);
     setSubmitting(false);
@@ -87,7 +84,7 @@ const CreateProfile: React.FC = () => {
   };
 
   const validateStep = (currentStep: number, values: FormValues) => {
-    let errors: FormikErrors<FormValues> = {};
+    const errors: FormikErrors<FormValues> = {};
     switch (currentStep) {
       case 1:
         if (!values.city) errors.city = 'City is required';
@@ -148,7 +145,7 @@ const CreateProfile: React.FC = () => {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({ values, setFieldValue, errors, touched, setTouched, setErrors }) => (
+          {({ values, setFieldValue, setTouched, setErrors }) => (
             <Form className="space-y-6">
               {/* Step 1 */}
                  <Transition
