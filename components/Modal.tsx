@@ -61,6 +61,22 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
         router.push('/create-profile');
     };
 
+    const isValidEmail = (email: string) => {
+        const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+        return emailRegex.test(email);
+    };
+    
+    const isValidPhoneNumber = (phone: string) => {
+        const phoneRegex = /^[0-9]{10}$/;
+        return phoneRegex.test(phone);
+    };
+    
+    const calculateAge = (birthday: string): number => {
+        const ageDifMs = Date.now() - new Date(birthday).getTime();
+        const ageDate = new Date(ageDifMs);
+        return Math.abs(ageDate.getUTCFullYear() - 1970);
+    };
+
     const validateStep = (currentStep: number, values: ModalFormValues) => {
         const errors: { [key: string]: string } = {};
         switch (currentStep) {
@@ -70,10 +86,17 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
             case 2:
                 if (!values.gender) errors.gender = 'Gender is required';
                 break;
-            case 3:
-                if (!values.name) errors.name = 'Name is required';
-                if (!values.dob) errors.dob = 'Date of birth is required';
-                break;
+                case 3:
+                    if (!values.name) errors.name = 'Name is required';
+                    if (!values.dob) {
+                        errors.dob = 'Date of birth is required';
+                    } else {
+                        const age = calculateAge(values.dob);
+                        if (age < 18) {
+                            errors.dob = 'You must be at least 18 years old';
+                        }
+                    }
+                    break;
             case 4:
                 if (!values.religion) errors.religion = 'Religion is required';
                 if (!values.language) errors.language = 'Language is required';
@@ -81,10 +104,18 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
             case 5:
                 if (!values.country) errors.country = 'Country is required';
                 break;
-            case 6:
-                if (!values.email) errors.email = 'Email is required';
-                if (!values.phone) errors.phone = 'Phone is required';
-                break;
+                case 6:
+                    if (!values.email) {
+                        errors.email = 'Email is required';
+                    } else if (!isValidEmail(values.email)) {
+                        errors.email = 'Invalid email address';
+                    }
+                    if (!values.phone) {
+                        errors.phone = 'Phone number is required';
+                    } else if (!isValidPhoneNumber(values.phone)) {
+                        errors.phone = 'Phone number must be 10 digits';
+                    }
+                    break;
         }
         return errors;
     };

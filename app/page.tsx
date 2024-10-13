@@ -12,11 +12,11 @@ const LoadingAnimation = () => {
   return (
     <div className="relative w-20 h-20 flex items-center justify-center">
       {/* Logo Image */}
-      <Image src="/logo.jpg" height={80} width={80} alt="Logo" priority className="rounded-full" />
+      <Image src="/logo.jpg" height={150} width={150} alt="Logo" priority className="rounded-full" />
 
       {/* Rotating Ring */}
       <motion.div
-        className="absolute w-32 h-32 border-4 m-2 border-t-transparent border-golden rounded-full"
+        className="absolute w-32 h-32 border-4 m-2 border-t-transparent border-white rounded-full"
         animate={{ rotate: 360 }}
         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
       />

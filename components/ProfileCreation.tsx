@@ -1,10 +1,11 @@
-'use client'
-import React, { useState } from 'react';
+'use client';
+import React, { useState, useEffect } from 'react';
 import { Formik, Form, Field, ErrorMessage, FormikHelpers, FormikTouched, FormikErrors } from 'formik';
 import * as Yup from 'yup';
 import { Transition } from '@headlessui/react';
 import Image from 'next/image';
 import SignUp from './Signup';
+
 
 interface FormValues {
   city: string;
@@ -49,35 +50,66 @@ const validationSchema = Yup.object({
 const CreateProfile: React.FC = () => {
   const [step, setStep] = useState(1);
   const totalSteps = 4;
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  // Initial values
+  const initialValues: FormValues = {
+    city: '',
+    liveWithFamily: '',
+    familyCity: '',
+    maritalStatus: '',
+    diet: '',
+    height: '',
+    subCommunity: '',
+    qualification: '',
+    collegeName: '',
+    jobType: '',
+    role: '',
+    company: '',
+    incomeRange: '',
+    bio: '',
+    profilePic: null,
+  };
+
+  // Load form values from localStorage
+  useEffect(() => {
+    const savedValues = localStorage.getItem('formValues');
+    if (savedValues) {
+      Object.assign(initialValues, JSON.parse(savedValues));
+    }
+  }, []);
+
+  // Save form values to localStorage whenever they change
+  const saveToLocalStorage = (values: FormValues) => {
+    localStorage.setItem('formValues', JSON.stringify(values));
+  };
 
   const handleSubmit = (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
     console.log(values);
+    saveToLocalStorage(values); // Save values to localStorage on submit
     setSubmitting(false);
     setShowSignUpModal(true);
   };
 
-  const nextStep = (
-    values: FormValues, 
-    helpers: { setTouched: (touched: FormikTouched<FormValues>) => void; setErrors: (errors: FormikErrors<FormValues>) => void }
-  ) => {
+  const nextStep = (values: FormValues, helpers: { setTouched: (touched: FormikTouched<FormValues>) => void; setErrors: (errors: FormikErrors<FormValues>) => void }) => {
     const errors = validateStep(step, values);
-    
+
     if (Object.keys(errors).length === 0) {
-      if (step < totalSteps) setStep(step + 1);
+      if (step < totalSteps) {
+        setStep(step + 1);
+      }
     } else {
       // Mark all fields as touched
       const touched: FormikTouched<FormValues> = Object.keys(values).reduce((acc, key) => {
         acc[key as keyof FormValues] = true;
         return acc;
       }, {} as FormikTouched<FormValues>);
-      
+
       helpers.setTouched(touched);
       helpers.setErrors(errors);
     }
   };
-  
 
   const prevStep = () => {
     if (step > 1) setStep(step - 1);
@@ -125,30 +157,15 @@ const CreateProfile: React.FC = () => {
         </div>
 
         <Formik
-          initialValues={{
-            city: '',
-            liveWithFamily: '',
-            familyCity: '',
-            maritalStatus: '',
-            diet: '',
-            height: '',
-            subCommunity: '',
-            qualification: '',
-            collegeName: '',
-            jobType: '',
-            role: '',
-            company: '',
-            incomeRange: '',
-            bio: '',
-            profilePic: null,
-          }}
+          initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
+          enableReinitialize // Allows Formik to update initialValues when they change
         >
           {({ values, setFieldValue, setTouched, setErrors }) => (
             <Form className="space-y-6">
               {/* Step 1 */}
-                 <Transition
+              <Transition
                 show={step === 1}
                 enter="transition ease-out duration-500"
                 enterFrom="opacity-0 translate-x-full"
@@ -190,7 +207,9 @@ const CreateProfile: React.FC = () => {
                       <Field name="maritalStatus" as="select" className="input-field border rounded-md p-2 w-full">
                         <option value="">Select</option>
                         <option value="single">Single</option>
+                        <option value="married">Married</option>
                         <option value="divorced">Divorced</option>
+                        <option value="widowed">Widowed</option>
                       </Field>
                       <ErrorMessage name="maritalStatus" component="span" className="text-red-500 text-sm" />
                     </div>
@@ -199,37 +218,28 @@ const CreateProfile: React.FC = () => {
                       <label className="block text-gray-600 mb-1">Diet Preference</label>
                       <Field name="diet" as="select" className="input-field border rounded-md p-2 w-full">
                         <option value="">Select</option>
-                        <option value="veg">Vegetarian</option>
-                        <option value="non-veg">Non-Vegetarian</option>
-                        <option value="occasional">Occasional</option>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="non-vegetarian">Non-Vegetarian</option>
+                        <option value="vegan">Vegan</option>
                       </Field>
                       <ErrorMessage name="diet" component="span" className="text-red-500 text-sm" />
                     </div>
 
                     <div className="mb-4">
-                      <label className="block text-gray-600 mb-1">Height</label>
-                      <Field name="height" as="select" className="input-field border rounded-md p-2 w-full">
-                        <option value="">Select Height</option>
-                        {heightOptions.map((h, i) => (
-                          <option key={i} value={h}>{h} cm</option>
+                      <label className="block text-gray-600 mb-1">Height (cm)</label>
+                      <Field as="select" name="height" className="input-field border rounded-md p-2 w-full">
+                        <option value="">Select</option>
+                        {heightOptions.map((h) => (
+                          <option key={h} value={h}>{h} cm</option>
                         ))}
                       </Field>
                       <ErrorMessage name="height" component="span" className="text-red-500 text-sm" />
                     </div>
 
                     <div className="mb-4">
-                      <label className="block text-gray-600 mb-1">Sub-Community (Caste/Religion Group)</label>
+                      <label className="block text-gray-600 mb-1">Sub-Community</label>
                       <Field name="subCommunity" className="input-field border rounded-md p-2 w-full" placeholder="Enter your sub-community" />
                       <ErrorMessage name="subCommunity" component="span" className="text-red-500 text-sm" />
-                    </div>
-                    <div className='flex justify-end mt-4'>
-                      <button
-                        type="button"
-                        className="btn-primary bg-primaryPink text-white rounded-md py-2 px-4 hover:bg-primaryPinkDark"
-                        onClick={() => nextStep(values, { setTouched, setErrors })}
-                      >
-                        Next
-                      </button>
                     </div>
                   </div>
                 )}
@@ -248,66 +258,53 @@ const CreateProfile: React.FC = () => {
               >
                 {step === 2 && (
                   <div>
-                    <h3 className="text-xl font-semibold mb-4">Education & Job Details</h3>
+                    <h3 className="text-xl font-semibold mb-4">Educational Details</h3>
                     <div className="mb-4">
                       <label className="block text-gray-600 mb-1">Highest Qualification</label>
-                      <Field name="qualification" className="input-field border border-gray-300 p-2 rounded-md w-full" placeholder="Enter your highest qualification" />
+                      <Field name="qualification" className="input-field border rounded-md p-2 w-full" placeholder="Enter your highest qualification" />
                       <ErrorMessage name="qualification" component="span" className="text-red-500 text-sm" />
                     </div>
 
                     <div className="mb-4">
                       <label className="block text-gray-600 mb-1">College Name</label>
-                      <Field name="collegeName" className="input-field border border-gray-300 p-2 rounded-md w-full" placeholder="Enter your college name" />
+                      <Field name="collegeName" className="input-field border rounded-md p-2 w-full" placeholder="Enter your college name" />
                       <ErrorMessage name="collegeName" component="span" className="text-red-500 text-sm" />
                     </div>
 
                     <div className="mb-4">
                       <label className="block text-gray-600 mb-1">Job Type</label>
-                      <Field name="jobType" as="select" className="input-field border border-gray-300 p-2 rounded-md w-full">
+                      <Field name="jobType" as="select" className="input-field border rounded-md p-2 w-full">
                         <option value="">Select</option>
-                        <option value="full-time">Full-time</option>
-                        <option value="part-time">Part-time</option>
-                        <option value="self-employed">Self-employed</option>
-                        <option value="student">Student</option>
+                        <option value="full-time">Full-Time</option>
+                        <option value="part-time">Part-Time</option>
+                        <option value="internship">Internship</option>
                       </Field>
                       <ErrorMessage name="jobType" component="span" className="text-red-500 text-sm" />
                     </div>
 
                     <div className="mb-4">
                       <label className="block text-gray-600 mb-1">Role</label>
-                      <Field name="role" className="input-field border border-gray-300 p-2 rounded-md w-full" placeholder="Enter your role" />
+                      <Field name="role" className="input-field border rounded-md p-2 w-full" placeholder="Enter your role" />
                       <ErrorMessage name="role" component="span" className="text-red-500 text-sm" />
                     </div>
 
                     <div className="mb-4">
                       <label className="block text-gray-600 mb-1">Company</label>
-                      <Field name="company" className="input-field border border-gray-300 p-2 rounded-md w-full" placeholder="Enter your company" />
+                      <Field name="company" className="input-field border rounded-md p-2 w-full" placeholder="Enter your company name" />
                       <ErrorMessage name="company" component="span" className="text-red-500 text-sm" />
                     </div>
 
                     <div className="mb-4">
                       <label className="block text-gray-600 mb-1">Income Range</label>
-                      <Field name="incomeRange" as="select" className="input-field border border-gray-300 p-2 rounded-md w-full">
+                      <Field name="incomeRange" as="select" className="input-field border rounded-md p-2 w-full">
                         <option value="">Select</option>
-                        <option value="below-5L">Below 5L</option>
-                        <option value="5-10L">5-10L</option>
-                        <option value="10-20L">10-20L</option>
-                        <option value="20-30L">20-30L</option>
-                        <option value="above-30L">Above 30L</option>
+                        <option value="below-30k">Below 30k</option>
+                        <option value="30k-50k">30k - 50k</option>
+                        <option value="50k-70k">50k - 70k</option>
+                        <option value="70k-100k">70k - 100k</option>
+                        <option value="above-100k">Above 100k</option>
                       </Field>
                       <ErrorMessage name="incomeRange" component="span" className="text-red-500 text-sm" />
-                    </div>
-                    <div className="flex justify-between">
-                      <button type="button" className="btn-secondary px-4 py-2 bg-primaryPink text-white rounded-md" onClick={prevStep}>
-                        Previous
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-primary px-4 py-2 bg-primaryPink text-white rounded-md"
-                        onClick={() => nextStep(values, { setTouched, setErrors })}
-                      >
-                        Next
-                      </button>
                     </div>
                   </div>
                 )}
@@ -326,28 +323,11 @@ const CreateProfile: React.FC = () => {
               >
                 {step === 3 && (
                   <div>
-                    <h3 className="text-xl font-semibold mb-4">Bio Description</h3>
+                    <h3 className="text-xl font-semibold mb-4">Additional Details</h3>
                     <div className="mb-4">
                       <label className="block text-gray-600 mb-1">Bio</label>
-                      <Field
-                        name="bio"
-                        as="textarea"
-                        className="input-field border border-gray-300 p-2 rounded-md w-full"
-                        placeholder="Tell us about yourself"
-                      />
+                      <Field as="textarea" name="bio" className="input-field border rounded-md p-2 w-full" placeholder="Tell us about yourself" />
                       <ErrorMessage name="bio" component="span" className="text-red-500 text-sm" />
-                    </div>
-                    <div className="flex justify-between">
-                      <button type="button" className="btn-secondary px-4 py-2 bg-primaryPink text-white rounded-md" onClick={prevStep}>
-                        Previous
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-primary px-4 py-2 bg-primaryPink text-white rounded-md"
-                        onClick={() => nextStep(values, { setTouched, setErrors })}
-                      >
-                        Next
-                      </button>
                     </div>
                   </div>
                 )}
@@ -366,9 +346,9 @@ const CreateProfile: React.FC = () => {
               >
                 {step === 4 && (
                   <div>
-                    <h3 className="text-xl font-semibold mb-4">Profile Picture</h3>
+                    <h3 className="text-xl font-semibold mb-4">Upload Profile Picture</h3>
                     <div className="mb-4">
-                      <label className="block text-gray-600 mb-1">Upload a profile picture</label>
+                      <label className="block text-gray-600 mb-1">Profile Picture</label>
                       <input
                         type="file"
                         id="profilePic"
@@ -397,23 +377,30 @@ const CreateProfile: React.FC = () => {
                         <Image src={imagePreview} alt="Profile preview" width={100} height={100} className="mt-2 object-cover rounded-full justify-center" />
                       )}
                     </div>
-                    <div className="flex justify-between">
-                      <button type="button" className="btn-secondary px-4 py-2 bg-primaryPink text-white rounded-md" onClick={prevStep}>
-                        Previous
-                      </button>
-                      <button type="submit" className="btn-primary px-4 py-2 bg-primaryPink text-white rounded-md" >
-                        Submit
-                      </button>
-                    </div>
                   </div>
                 )}
               </Transition>
+
+              <div className="flex justify-between mt-6">
+                <button type="button" onClick={prevStep} disabled={step === 1} className="bg-gray-200 text-gray-600 px-4 py-2 rounded-md disabled:opacity-50">
+                  Previous
+                </button>
+                {step < totalSteps ? (
+                  <button type="button" onClick={() => nextStep(values, { setTouched, setErrors })} className="bg-primaryPink text-white px-4 py-2 rounded-md">
+                    Next
+                  </button>
+                ) : (
+                  <button type="submit" className="bg-primaryPink text-white px-4 py-2 rounded-md">
+                    Submit
+                  </button>
+                )}
+              </div>
+
             </Form>
           )}
         </Formik>
-
-        {showSignUpModal && <SignUp onClose={() => setShowSignUpModal(false)} />}
       </div>
+      {showSignUpModal && <SignUp onClose={() => setShowSignUpModal(false)} />}
     </div>
   );
 };

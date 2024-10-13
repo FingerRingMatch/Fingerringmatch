@@ -13,13 +13,13 @@ export const modalFormValidationSchema = Yup.object({
   }),
   name: Yup.string().required('Required'),
   dob: Yup.date()
-  .required('Required')
-  .max(eighteenYearsAgo, 'Age must be at least 18 years old')  // Date must be before 18 years ago
-  .test(
-    'is-date-in-the-past',
-    'Date cannot be in the future',
-    (value) => value && value <= new Date()
-  ),
+    .required('Required')
+    .max(eighteenYearsAgo, 'Age must be at least 18 years old')  // Date must be before 18 years ago
+    .test(
+      'is-date-in-the-past',
+      'Date cannot be in the future',
+      (value) => value && value <= new Date()
+    ),
   religion: Yup.string().required('Required'),
   language: Yup.string().required('Required'),
   country: Yup.string().required('Required'),
