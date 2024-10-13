@@ -4,7 +4,7 @@ import { Formik, Form, Field, ErrorMessage, FormikHelpers } from 'formik';
 import { overlayFormValidationSchema } from './ValidationSchema';
 import { religionOptions, languageOptions } from './formOptions';
 import { HeartSVG } from './HeartSVG';
-import { ModalForm } from './ModalForm';
+import { ModalForm } from './Modal';
 
 // Define the form's initial values and the shape of form data
 interface FormValues {
@@ -119,7 +119,7 @@ function OverlayForm() {
           <div className="col-span-1 sm:col-span-2">
             <button
               type="submit"
-              className="w-full flex items-center justify-center bg-primaryPink hover:bg-primaryGreen transition-all duration-300 p-2 sm:p-3 rounded-full shadow-md focus:ring-2 focus:ring-primaryGreen"
+              className="w-full flex items-center justify-center bg-primaryPink hover:bg-opacity-50 transition-all duration-300 p-2 sm:p-3 rounded-full shadow-md focus:ring-2 focus:ring-primaryGreen"
               disabled={isSubmitting}
             >
               Let&apos;s Begin
@@ -132,8 +132,8 @@ function OverlayForm() {
       )}
     </Formik>
   </div>
-  {showModal && <ModalForm onClose={() => setShowModal(false)} onSubmit={(values) => console.log('Modal submitted:', values)} />}
-</div>
+      {showModal && <ModalForm onClose={() => setShowModal(false)} onSubmit={(values) => console.log('Modal submitted:', values)} />}
+    </div>
 
 
   );

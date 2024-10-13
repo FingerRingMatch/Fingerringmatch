@@ -46,6 +46,16 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
 
   const getNextStep = useCallback(
     (currentStep: number, values: ModalFormValues) => {
+      if (currentStep === 0) {
+        // Set gender based on the selected relation
+        if (values.relation === 'son') {
+          values.gender = 'male'; // Automatically set gender to male
+        } else if (values.relation === 'daughter') {
+          values.gender = 'female'; // Automatically set gender to female
+        }
+      }
+
+      // Logic for skipping gender step
       if (currentStep === 0 && (values.relation === 'son' || values.relation === 'daughter')) {
         return 2; // Skip gender step
       }
@@ -66,7 +76,7 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded-lg w-full max-w-md sm:w-2/3 lg:w-1/3 max-h-[90vh] h-auto sm:h-80 overflow-y-auto">
+      <div className="bg-white p-6 rounded-lg w-4/5 max-w-xl lg:w-1/2 max-h-[90vh] h-80 overflow-y-auto">
         <Formik
           initialValues={initialValues}
           validationSchema={modalFormValidationSchema}
@@ -89,6 +99,5 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
         </Formik>
       </div>
     </div>
-
   );
 };
