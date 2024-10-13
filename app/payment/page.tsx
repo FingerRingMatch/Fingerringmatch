@@ -85,7 +85,7 @@ const PaymentPage: React.FC = () => {
 
         {/* Footer Section */}
         <div className="text-center mt-8 text-gray-600">
-          India's <strong>Safest, Smartest</strong> and the most <strong>Secure</strong> matchmaking service
+          India&apos;s <strong>Safest, Smartest</strong> and the most <strong>Secure</strong> matchmaking service
         </div>
       </main>
     </div>
