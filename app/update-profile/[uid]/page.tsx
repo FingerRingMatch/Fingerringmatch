@@ -27,6 +27,11 @@ interface FormValues {
   profilePic: File | null;
 }
 
+interface ProfileData extends Omit<FormValues, 'profilePic'> {
+  profilePicUrl?: string;
+  uid: string;
+}
+
 const validationSchema = Yup.object({
   city: Yup.string().required('City is required'),
   liveWithFamily: Yup.string().oneOf(['yes', 'no'], 'Please select an option').required('Please select an option'),
@@ -50,7 +55,8 @@ const validationSchema = Yup.object({
 });
 
 const UpdateProfile: React.FC = () => {
-    const {uid} = useParams()
+  const params = useParams<{ uid: string }>();
+  const uid = params.uid;
   const [step, setStep] = useState(1);
   const totalSteps = 4;
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -60,7 +66,7 @@ const UpdateProfile: React.FC = () => {
   const storage = getStorage();
 
   // State to store the fetched profile data
-  const [profileData, setProfileData] = useState<FormValues | null>(null);
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -74,7 +80,7 @@ const UpdateProfile: React.FC = () => {
     try {
       const response = await fetch(`/api/profile/${uid}`);
       if (!response.ok) throw new Error('Failed to fetch profile');
-      const data = await response.json();
+      const data: ProfileData = await response.json();
       
       setProfileData(data);
       if (data.profilePicUrl) {
@@ -149,7 +155,7 @@ const UpdateProfile: React.FC = () => {
     if (!user) return;
 
     try {
-      let profilePicUrl = profileData?.profilePic; // Keep existing URL if no new image
+      let profilePicUrl = profileData?.profilePicUrl; // Keep existing URL if no new image
 
       // Upload new profile picture if provided
       if (values.profilePic) {
@@ -159,13 +165,13 @@ const UpdateProfile: React.FC = () => {
       }
 
       // Prepare data for API
-      const updateData = {
+      const updateData: Partial<ProfileData> = {
         ...values,
         profilePicUrl,
-        uid: uid,
+        uid,
       };
 
-      delete updateData.profilePic; // Remove the File object before sending to API
+      delete updateData.profilePicUrl; // Remove the File object before sending to API
 
       const response = await fetch(`/api/profile/update/${uid}`, {
         method: 'PUT',
@@ -434,7 +440,7 @@ const UpdateProfile: React.FC = () => {
                       <label className="block text-gray-600 mb-1">Profile Picture</label>
                       <input
                         type="file"
-                        uid="profilePic"
+                        id="profilePic"
                         name="profilePic"
                         accept="image/*"
                         onChange={(event) => {

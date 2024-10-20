@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 export async function PUT(
   request: Request,
@@ -42,11 +43,13 @@ export async function PUT(
     console.error('Profile update error:', error);
     
     // Check if error is due to record not found
-    if (error.code === 'P2025') {
-      return NextResponse.json(
-        { error: 'Profile not found' },
-        { status: 404 }
-      );
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        return NextResponse.json(
+          { error: 'Profile not found' },
+          { status: 404 }
+        );
+      }
     }
 
     return NextResponse.json(
