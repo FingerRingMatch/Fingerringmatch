@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { signUpWithEmail, signInWithGoogle } from '../lib/auth';
+import { signUpWithEmail } from '../lib/auth';
 import { useFormContext } from '@/context/formContext';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Import Firebase storage
 import { storage } from '@/lib/firebase'
