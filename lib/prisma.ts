@@ -2,8 +2,15 @@
 
 import { PrismaClient } from '@prisma/client';
 
-// Create a singleton Prisma Client instance
-const prisma = new PrismaClient();
+declare global {
+  var prisma: PrismaClient | undefined; // Declare a global variable for PrismaClient
+}
 
-// Export the Prisma client for use in other parts of your application
+const prisma = global.prisma || new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') {
+  global.prisma = prisma; // Assign it to global only in development mode
+}
+
 export { prisma };
+
