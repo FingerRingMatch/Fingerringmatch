@@ -89,7 +89,7 @@ const UpdateProfile: React.FC = () => {
       setLoading(false);
     } catch (error) {
       toast({
-        title: "Error",
+        title: `Error: ${error}`,
         description: "Failed to fetch profile data",
         variant: "destructive",
       });
@@ -191,7 +191,7 @@ const UpdateProfile: React.FC = () => {
       router.push(`/profile/${uid}`);
     } catch (error) {
       toast({
-        title: "Error",
+        title: `Error: ${error}`,
         description: "Failed to update profile",
         variant: "destructive",
       });

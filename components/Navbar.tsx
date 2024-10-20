@@ -4,11 +4,9 @@ import Image from 'next/image';
 import { ModalForm } from './Modal';
 import Login from '../components/Login';
 import { useAuth } from '@/context/authContext'; // Assume this provides user and logout methods
-import { useParams } from 'next/navigation';
 
 function Navbar() {
   const { user, logout } = useAuth();
-  const {id} = useParams();
   const [showTooltip, setShowTooltip] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
