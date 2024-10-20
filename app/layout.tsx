@@ -35,7 +35,6 @@ export default function RootLayout({
         <AuthProvider>
           <FormProvider>
         {children}
-        <Footer/>
         </FormProvider>
         </AuthProvider>
       </body>

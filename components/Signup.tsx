@@ -265,16 +265,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
           </button>
         </form>
 
-        <p className="text-center my-2">OR</p>
-        <button
-          type="button"
-          className="w-full bg-primaryPink text-white py-2 rounded-md hover:bg-opacity-50 transition"
-          onClick={handleGoogleSignUp}
-          disabled={isLoading}
-        >
-          {isLoading ? 'Processing...' : 'Sign Up with Google'}
-        </button>
-
+       
         <button
           className="absolute top-5 right-10 text-gray-600 text-3xl"
           onClick={onClose}

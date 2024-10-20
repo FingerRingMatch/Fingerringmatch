@@ -1,5 +1,5 @@
 import React from 'react';
-import Navbar from '@/components/Navbar';
+import Image from 'next/image';
 
 const PaymentPage: React.FC = () => {
   const plans = [
@@ -52,15 +52,22 @@ const PaymentPage: React.FC = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
+      
       {/* Curved background */}
       <div className="absolute inset-0 bg-primaryPink" 
            style={{
              clipPath: 'polygon(0 0, 100% 0, 100% 65%, 0 85%)'
            }}
       />
-      <Navbar/>
       {/* Content */}
       <div className="relative z-10">
+        <div className='flex justify-between items-center'>
+          <Image alt='logo' src="/Head_Logo.png" width={150} height={150} priority className='ml-12'/>
+          <div className='flex justify-end text-white space-x-8 mr-20 font-bold text-lg'>
+            <button className='rounded-full border-2 p-2 border-white'>Personalized Plans</button>
+            <button>Help</button>
+          </div>
+        </div>
         <div className="max-w-7xl mx-auto px-4 py-8">
           <h1 className="text-center text-white text-3xl font-semibold mb-2">
             Upgrade now & Get Premium benefits!
@@ -72,11 +79,7 @@ const PaymentPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 ">
             {plans.map((plan) => (
               <div key={plan.name} className="bg-white rounded-lg p-6 shadow-lg">
-                {(plan.isTopSeller || plan.isBestValue) && (
-                  <div className="text-red-500 text-sm text-center mb-2">
-                    {plan.isTopSeller ? '— TOP SELLER —' : '— BEST VALUE —'}
-                  </div>
-                )}
+               
                 <div className="text-center">
                   <h3 className="font-medium text-gray-800">{plan.name}</h3>
                   <span className="text-gray-500">3 months</span>
@@ -84,6 +87,7 @@ const PaymentPage: React.FC = () => {
                     <div className="text-2xl font-bold">{plan.price}</div>
                     <div className='text-sm text-gray-500'>{plan.discount}</div>
                     <div className='text-2xl text-gray-300 line-through'>{plan.originalPrice}</div>
+                    
                   </div>
                 </div>
 
@@ -97,8 +101,10 @@ const PaymentPage: React.FC = () => {
                     </li>
                   ))}
                 </ul>
+                <button className='bg-primaryPink text-white rounded-lg px-4 py-2 flex m-auto mt-2'>Select Plan</button>
               </div>
             ))}
+            
           </div>
         </div>
       </div>

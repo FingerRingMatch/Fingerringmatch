@@ -26,14 +26,6 @@ const Login: React.FC<LoginProps> = ({ onClose }) => {
     setShowModal(true);
   }
 
-  const handleGoogleSignIn = async () => {
-    try {
-      await signInWithGoogle();
-      onClose(); // Close the modal on successful Google sign-in
-    } catch (error) {
-      console.error('Error signing in with Google:', error);
-    }
-  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -77,13 +69,6 @@ const Login: React.FC<LoginProps> = ({ onClose }) => {
             Login
           </button>
           <p className="text-center my-2">OR</p>
-          <button
-            type="button"
-            className="w-full  bg-primaryPink text-white py-2 rounded-md hover:bg-opacity-50 transition"
-            onClick={handleGoogleSignIn}
-          >
-            Login with Google
-          </button>
           <button
             type="button"
             className="w-full mt-4 bg-primaryPink text-white py-2 rounded-md hover:bg-opacity-50 transition"
