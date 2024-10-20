@@ -4,9 +4,10 @@ import { Formik, Form, Field, ErrorMessage, FormikHelpers, FormikTouched, Formik
 import * as Yup from 'yup';
 import { Transition } from '@headlessui/react';
 import Image from 'next/image';
-import SignUp from './Signup';
-import { useFormContext } from '@/context/formContext';
-
+import { useParams, useRouter } from 'next/navigation';
+import { toast } from '@/hooks/use-toast';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useAuth } from '@/context/authContext';
 
 interface FormValues {
   city: string;
@@ -45,48 +46,50 @@ const validationSchema = Yup.object({
   company: Yup.string().required('Company is required'),
   incomeRange: Yup.string().required('Income range is required'),
   bio: Yup.string().required('Bio is required'),
-  profilePic: Yup.mixed().required('Profile picture is required'),
+  profilePic: Yup.mixed().nullable(),
 });
 
-const CreateProfile: React.FC = () => {
+const UpdateProfile: React.FC = () => {
+    const {uid} = useParams()
   const [step, setStep] = useState(1);
   const totalSteps = 4;
-  const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const {formData, setFormData} = useFormContext()
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+ const {user } = useAuth();
+  const storage = getStorage();
 
-  // Initial values
-  const initialValues: FormValues = {
-    city: formData.city,
-    liveWithFamily: formData.liveWithFamily,
-    familyCity: formData.familyCity,
-    maritalStatus: formData.maritalStatus,
-    diet: formData.diet,
-    height: formData.height,
-    subCommunity: formData.subCommunity,
-    qualification: formData.qualification,
-    collegeName: formData.collegeName,
-    jobType: formData.jobType,
-    role: formData.role,
-    company: formData.company,
-    incomeRange: formData.incomeRange,
-    bio: formData.bio,
-    profilePic: formData.profilePic,
+  // State to store the fetched profile data
+  const [profileData, setProfileData] = useState<FormValues | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      fetchProfileData();
+    } 
+  }, [user]);
+
+  const fetchProfileData = async () => {
+    if (!user) return;
+
+    try {
+      const response = await fetch(`/api/profile/${uid}`);
+      if (!response.ok) throw new Error('Failed to fetch profile');
+      const data = await response.json();
+      
+      setProfileData(data);
+      if (data.profilePicUrl) {
+        setImagePreview(data.profilePicUrl);
+      }
+      setLoading(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch profile data",
+        variant: "destructive",
+      });
+      setLoading(false);
+    }
   };
-
-  const saveToContext = (values: FormValues) => {
-    setFormData((prevData) => ({ ...prevData, ...values }));
-  };
-
-  const handleSubmit = (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
-    saveToContext(values);
-    console.log(formData);
-    setSubmitting(false);
-    setShowSignUpModal(true);
-
-   
-  };
-
   const nextStep = (values: FormValues, helpers: { setTouched: (touched: FormikTouched<FormValues>) => void; setErrors: (errors: FormikErrors<FormValues>) => void }) => {
     const errors = validateStep(step, values);
 
@@ -142,6 +145,91 @@ const CreateProfile: React.FC = () => {
 
   const heightOptions = Array.from({ length: 60 }, (_, i) => i + 140).map((h) => `${Math.floor(h / 100)}.${h % 100}`);
 
+  const handleSubmit = async (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
+    if (!user) return;
+
+    try {
+      let profilePicUrl = profileData?.profilePic; // Keep existing URL if no new image
+
+      // Upload new profile picture if provided
+      if (values.profilePic) {
+        const fileRef = ref(storage, `profile-pics/${uid}/${values.profilePic.name}`);
+        await uploadBytes(fileRef, values.profilePic);
+        profilePicUrl = await getDownloadURL(fileRef);
+      }
+
+      // Prepare data for API
+      const updateData = {
+        ...values,
+        profilePicUrl,
+        uid: uid,
+      };
+
+      delete updateData.profilePic; // Remove the File object before sending to API
+
+      const response = await fetch(`/api/profile/update/${uid}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updateData),
+      });
+
+      if (!response.ok) throw new Error('Failed to update profile');
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+
+      router.push(`/profile/${uid}`);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        variant: "destructive",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) {
+    return <div className="min-h-screen bg-primaryPink flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-lg">
+        Loading profile data...
+      </div>
+    </div>;
+  }
+
+  if (!profileData) {
+    return <div className="min-h-screen bg-primaryPink flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-lg">
+        Profile not found
+      </div>
+    </div>;
+  }
+
+  const initialValues: FormValues = {
+    city: profileData.city,
+    liveWithFamily: profileData.liveWithFamily,
+    familyCity: profileData.familyCity,
+    maritalStatus: profileData.maritalStatus,
+    diet: profileData.diet,
+    height: profileData.height,
+    subCommunity: profileData.subCommunity,
+    qualification: profileData.qualification,
+    collegeName: profileData.collegeName,
+    jobType: profileData.jobType,
+    role: profileData.role,
+    company: profileData.company,
+    incomeRange: profileData.incomeRange,
+    bio: profileData.bio,
+    profilePic: null,
+  };
+
+  // ... Rest of the component (form rendering) remains the same as before ...
+
   return (
     <div className="min-h-screen bg-primaryPink flex items-center justify-center">
       <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl p-8">
@@ -155,7 +243,7 @@ const CreateProfile: React.FC = () => {
           initialValues={initialValues}
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
-          enableReinitialize // Allows Formik to update initialValues when they change
+          enableReinitialize
         >
           {({ values, setFieldValue, setTouched, setErrors }) => (
             <Form className="space-y-6">
@@ -346,7 +434,7 @@ const CreateProfile: React.FC = () => {
                       <label className="block text-gray-600 mb-1">Profile Picture</label>
                       <input
                         type="file"
-                        id="profilePic"
+                        uid="profilePic"
                         name="profilePic"
                         accept="image/*"
                         onChange={(event) => {
@@ -395,9 +483,8 @@ const CreateProfile: React.FC = () => {
           )}
         </Formik>
       </div>
-      {showSignUpModal && <SignUp onClose={() => setShowSignUpModal(false)} />}
     </div>
   );
 };
 
-export default CreateProfile;
+export default UpdateProfile;

@@ -4,6 +4,7 @@ import { modalFormValidationSchema } from './ValidationSchema';
 import { Transition } from '@headlessui/react';
 import { religionOptions, languageOptions, countryOptions, relationOptions } from './formOptions';
 import { useRouter } from 'next/navigation';
+import { useFormContext } from '@/context/formContext';
 
 interface ModalFormProps {
     onClose: () => void;
@@ -31,17 +32,18 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
     const [step, setStep] = useState(1);
     const totalSteps = 6;
     const router = useRouter();
+    const { formData, setFormData } = useFormContext();
 
     const [initialValues, setInitialValues] = useState<ModalFormValues>({
         relation: '',
-        gender: '',
-        name: '',
-        dob: '',
-        religion: '',
-        language: '',
+        gender: formData.gender || '',
+        name: formData.name || '',
+        dob: formData.dob || '',
+        religion: formData.religion || '',
+        language: formData.language || '',
         country: '',
-        email: '',
-        phone: '',
+        email: formData.email || '',
+        phone: formData.phone || '',
     });
 
     useEffect(() => {
@@ -56,6 +58,16 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
         { setSubmitting }: FormikHelpers<ModalFormValues>
     ) => {
         localStorage.setItem('modalFormValues', JSON.stringify(values));
+        setFormData({
+            ...formData,
+            gender: values.gender,
+            name: values.name,
+            dob: values.dob,
+            religion: values.religion,
+            language: values.language,
+            phone: values.phone,
+            email: values.email,
+        });
         onSubmit(values);
         setSubmitting(false);
         router.push('/create-profile');
@@ -389,7 +401,7 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
                             </Transition>
 
                             <div className="mt-auto flex justify-between pt-4">
-                                <button
+                            <button
                                     type="button"
                                     onClick={() => {
                                         if (step > 1) {
@@ -398,6 +410,16 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
                                             onClose();
                                         }
                                         localStorage.setItem('modalFormValues', JSON.stringify(values));
+                                        setFormData({
+                                            ...formData,
+                                            gender: values.gender,
+                                            name: values.name,
+                                            dob: values.dob,
+                                            religion: values.religion,
+                                            language: values.language,
+                                            phone: values.phone,
+                                            email: values.email,
+                                        });
                                     }}
                                     className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition-colors"
                                 >
@@ -414,6 +436,16 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
                                                 if (nextStepNumber <= totalSteps) {
                                                     setStep(nextStepNumber);
                                                     localStorage.setItem('modalFormValues', JSON.stringify(values));
+                                                    setFormData({
+                                                        ...formData,
+                                                        gender: values.gender,
+                                                        name: values.name,
+                                                        dob: values.dob,
+                                                        religion: values.religion,
+                                                        language: values.language,
+                                                        phone: values.phone,
+                                                        email: values.email,
+                                                    });
                                                 }
                                             } else {
                                                 setTouched(stepErrors);

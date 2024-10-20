@@ -62,7 +62,7 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-lg font-semibold mb-2">More</h4>
             <ul>
-              <li><a href="#" className="hover:underline">VIP Wedding</a></li>
+              <li><a href="/no-refund-policy" className="hover:underline">No refund Policy</a></li>
               <li><a href="#" className="hover:underline">Select Wedding</a></li>
               <li><a href="#" className="hover:underline">Sangam</a></li>
               <li><a href="#" className="hover:underline">Marriage Centres</a></li>

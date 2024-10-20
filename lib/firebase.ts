@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, RecaptchaVerifier } from "firebase/auth";
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAl7wTv7QkXkQWskdXnCu8f-YrDRbAn-zs",
@@ -13,5 +14,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const storage = getStorage(app);
 
-export { auth, RecaptchaVerifier };
+export { auth, storage, RecaptchaVerifier };

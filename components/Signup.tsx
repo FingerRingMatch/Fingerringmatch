@@ -2,6 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { signUpWithEmail, signInWithGoogle } from '../lib/auth';
+import { useFormContext } from '@/context/formContext';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Import Firebase storage
+import { storage } from '@/lib/firebase'
+
 
 interface SignUpProps {
   onClose: () => void;
@@ -24,6 +28,8 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [storedData, setStoredData] = useState<StoredFormData | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { formData } = useFormContext();
 
   useEffect(() => {
     const storedValues = localStorage.getItem('modalFormValues');
@@ -37,76 +43,158 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match. Please ensure both passwords are identical.');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters long. Please choose a stronger password.');
-      return;
-    }
+    setIsLoading(true);
+    
+    console.log('Starting signup process...'); // Debug log
 
     try {
-      await signUpWithEmail(email, password);
-      if (storedData) {
-        console.log('Sending stored data to backend:', storedData);
+      // Basic validation
+      if (password !== confirmPassword) {
+        throw new Error('Passwords do not match');
       }
-      localStorage.removeItem('modalFormValues');
-      onClose();
-    } catch (err: unknown) {
-      if (typeof err === 'object' && err !== null && 'code' in err && 'message' in err) {
-        const error = err as FirebaseError;
-        switch (error.code) {
+
+      if (password.length < 6) {
+        throw new Error('Password must be at least 6 characters');
+      }
+
+      console.log('Attempting Firebase signup...'); // Debug log
+      
+      // First create the Firebase user
+      const firebaseResponse = await signUpWithEmail(email, password);
+      console.log('Firebase signup successful:', firebaseResponse.user.uid); // Debug log
+
+      // Upload profile picture to Firebase Storage
+      const file = formData.profilePic;
+      let profilePicUrl = '';
+      if (file) {
+        const storageRef = ref(storage, `profile_pictures/${firebaseResponse.user.uid}/${file.name}`);
+        const snapshot = await uploadBytes(storageRef, file);
+        profilePicUrl = await getDownloadURL(snapshot.ref); // Get the file's URL
+  
+       
+        console.log('Profile pic uploaded, URL:', profilePicUrl); // Debug log
+      }
+      // Prepare the data for your backend
+      const userData = {
+        email,
+        firebaseUid: firebaseResponse.user.uid,
+        profilePic: profilePicUrl,
+        formData: {
+          ...formData,
+          email: email,
+        }
+      };
+
+      console.log('Sending data to backend:', userData); // Debug log
+
+      // Send data to your backend API
+      try {
+        const response = await fetch('/api/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(userData),
+        });
+
+        console.log('API Response status:', response.status); // Debug log
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('API Error response:', errorText); // Debug log
+          throw new Error(`API Error: ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log('API Success response:', data); // Debug log
+
+        // Clear stored data and close modal
+        localStorage.removeItem('modalFormValues');
+        onClose();
+
+      } catch (apiError) {
+        console.error('API call failed:', apiError); // Debug log
+        throw new Error('Failed to save user data. Please try again.');
+      }
+
+    } catch (err) {
+      console.error('Signup error:', err); // Debug log
+
+      if (typeof err === 'object' && err !== null && 'code' in err) {
+        const firebaseError = err as FirebaseError;
+        switch (firebaseError.code) {
           case 'auth/email-already-in-use':
-            setError('This email is already registered. Please try logging in or use a different email.');
+            setError('This email is already registered');
             break;
           case 'auth/invalid-email':
-            setError('The email address is not valid. Please check and try again.');
+            setError('Invalid email address');
+            break;
+          case 'auth/operation-not-allowed':
+            setError('Email/password accounts are not enabled. Please contact support.');
             break;
           case 'auth/weak-password':
-            setError('The password is too weak. Please choose a stronger password.');
-            break;
-          case 'auth/network-request-failed':
-            setError('Network error. Please check your internet connection and try again.');
+            setError('Password is too weak');
             break;
           default:
-            setError(`An unexpected error occurred: ${error.message}`);
+            setError(`Firebase error: ${firebaseError.message}`);
         }
+      } else if (err instanceof Error) {
+        setError(err.message);
       } else {
-        setError('An unexpected error occurred.');
+        setError('An unexpected error occurred');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleGoogleSignUp = async () => {
+    setIsLoading(true);
     try {
-      await signInWithGoogle();
-      if (storedData) {
-        console.log('Sending stored data to backend:', storedData);
+      console.log('Starting Google signup...'); // Debug log
+      const result = await signInWithGoogle();
+      console.log('Google signup successful:', result); // Debug log
+
+      if (formData) {
+        try {
+          const response = await fetch('/api/signup', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: result.user.email,
+              firebaseUid: result.user.uid,
+              formData: {
+                ...formData,
+                email: result.user.email,
+              }
+            }),
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to save user data');
+          }
+
+          const data = await response.json();
+          console.log('API Success response:', data); // Debug log
+        } catch (apiError) {
+          console.error('API call failed:', apiError); // Debug log
+          throw new Error('Failed to save user data');
+        }
       }
+
       localStorage.removeItem('modalFormValues');
       onClose();
-    } catch (err: unknown) {
-      if (typeof err === 'object' && err !== null && 'code' in err && 'message' in err) {
-        const error = err as FirebaseError;
-        switch (error.code) {
-          case 'auth/popup-closed-by-user':
-            setError('Sign-up was cancelled. Please try again.');
-            break;
-          case 'auth/popup-blocked':
-            setError('Pop-up was blocked by your browser. Please allow pop-ups for this site and try again.');
-            break;
-          case 'auth/account-exists-with-different-credential':
-            setError('An account already exists with the same email address but different sign-in credentials. Please sign in using the original method.');
-            break;
-          default:
-            setError(`An error occurred during Google sign-up: ${error.message}`);
-        }
+    } catch (error) {
+      console.error('Google signup error:', error); // Debug log
+      if (error instanceof Error) {
+        setError(error.message);
       } else {
-        setError('An unexpected error occurred.');
+        setError('An unexpected error occurred during Google sign-up');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -135,6 +223,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -148,6 +237,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -161,14 +251,16 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
+              disabled={isLoading}
             />
           </div>
 
           <button
             type="submit"
             className="w-full bg-primaryPink text-white py-2 rounded-md hover:bg-opacity-50 transition"
+            disabled={isLoading}
           >
-            Sign Up
+            {isLoading ? 'Signing up...' : 'Sign Up'}
           </button>
         </form>
 
@@ -177,13 +269,15 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
           type="button"
           className="w-full bg-primaryPink text-white py-2 rounded-md hover:bg-opacity-50 transition"
           onClick={handleGoogleSignUp}
+          disabled={isLoading}
         >
-          Sign Up with Google
+          {isLoading ? 'Processing...' : 'Sign Up with Google'}
         </button>
 
         <button
           className="absolute top-5 right-10 text-gray-600 text-3xl"
           onClick={onClose}
+          disabled={isLoading}
         >
           &times;
         </button>

@@ -4,9 +4,11 @@ import Special_Someone from "@/components/Special_Someone";
 import Success_Stories from "@/components/Success_Stories";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from 'react';
 import Footer from "@/components/Footer";
-
+import { useRouter } from 'next/navigation';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/lib/firebase'; // Import your Firebase instance
 
 const LoadingAnimation = () => {
   return (
@@ -24,17 +26,28 @@ const LoadingAnimation = () => {
   );
 };
 
-export default function Home() {
-
+export default function Home() { 
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
-    const loadSections = async () => {
-      await new Promise(resolve => setTimeout(resolve, 1600));
-      setIsLoading(false);
-    };
-    loadSections();
-  }, []);
+    // Check if user is authenticated
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Redirect to dashboard if user is authenticated
+        router.push('/plans');
+      } else {
+        // Simulate loading animation before showing content
+        const loadSections = async () => {
+          await new Promise(resolve => setTimeout(resolve, 1600));
+          setIsLoading(false);
+        };
+        loadSections();
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
 
   if (isLoading) {
     return (
@@ -46,10 +59,10 @@ export default function Home() {
 
   return (
     <div>
-      <Hero/>
-      <Special_Someone/>
-      <Success_Stories/>
-      <Footer/>
+      <Hero />
+      <Special_Someone />
+      <Success_Stories />
+      <Footer />
     </div>
   );
 }
