@@ -3,7 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from '@/context/authContext';
 import { FormProvider } from "@/context/formContext";
-import Footer from "@/components/Footer";
+
 
 
 const geistSans = localFont({

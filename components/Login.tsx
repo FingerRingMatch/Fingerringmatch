@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { signInWithEmail, signInWithGoogle } from '../lib/auth';
+import { signInWithEmail } from '../lib/auth';
 import { ModalForm } from './Modal';
 
 interface LoginProps {
