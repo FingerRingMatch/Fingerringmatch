@@ -149,55 +149,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     }
   };
 
-  const handleGoogleSignUp = async () => {
-    setIsLoading(true);
-    try {
-      console.log('Starting Google signup...'); // Debug log
-      const result = await signInWithGoogle();
-      console.log('Google signup successful:', result); // Debug log
-
-      if (formData) {
-        try {
-          const response = await fetch('/api/signup', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              email: result.user.email,
-              firebaseUid: result.user.uid,
-              formData: {
-                ...formData,
-                email: result.user.email,
-              }
-            }),
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to save user data');
-          }
-
-          const data = await response.json();
-          console.log('API Success response:', data); // Debug log
-        } catch (apiError) {
-          console.error('API call failed:', apiError); // Debug log
-          throw new Error('Failed to save user data');
-        }
-      }
-
-      localStorage.removeItem('modalFormValues');
-      onClose();
-    } catch (error) {
-      console.error('Google signup error:', error); // Debug log
-      if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError('An unexpected error occurred during Google sign-up');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
