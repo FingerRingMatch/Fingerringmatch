@@ -4,14 +4,18 @@ import { PrismaClient } from '@prisma/client';
 
 let prisma: PrismaClient;
 
+declare global {
+  // Extending the globalThis object
+  var prisma: PrismaClient | undefined;
+}
+
 if (process.env.NODE_ENV === 'production') {
   prisma = new PrismaClient();
 } else {
-  // Avoid re-instantiating PrismaClient during development
-  if (!(global as any).prisma) {
-    (global as any).prisma = new PrismaClient();
+  if (!global.prisma) {
+    global.prisma = new PrismaClient();
   }
-  prisma = (global as any).prisma;
+  prisma = global.prisma;
 }
 
 export { prisma };

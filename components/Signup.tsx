@@ -36,6 +36,7 @@ const SignUp: React.FC<SignUpProps> = ({ onClose }) => {
     if (storedValues) {
       const parsedValues = JSON.parse(storedValues);
       setStoredData(parsedValues);
+      console.log(storedData)
       setEmail(parsedValues.email || '');
     }
   }, []);
