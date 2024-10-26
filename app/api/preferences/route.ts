@@ -1,40 +1,40 @@
-// pages/api/preferences.ts
+// app/api/preferences/route.ts
 
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma'; // Adjust the import based on your project structure
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'POST') {
-    const { userId, preferredGender, minAge, maxAge, minHeight, maxHeight, preferredReligion, preferredDiet } = req.body as {
-      userId: string;
-      preferredGender: string;
-      minAge: number;
-      maxAge: number;
-      minHeight: number;
-      maxHeight: number;
-      preferredReligion: string;
-      preferredDiet: string;
-    };
+export async function POST(req: Request) {
+  const {
+    userId,
+    preferredGender,
+    minAge,
+    maxAge,
+    minHeight,
+    maxHeight,
+    preferredReligion,
+    preferredDiet,
+  } = await req.json();
 
-    try {
-      const preferences = await prisma.preferences.create({
-        data: {
-          userId,
-          preferredGender,
-          minAge,
-          maxAge,
-          minHeight,
-          maxHeight,
-          preferredReligion,
-          preferredDiet,
-        },
-      });
-      return res.status(201).json(preferences);
-    } catch (error) {
-      console.error('Error saving preferences:', error);
-      return res.status(500).json({ error: 'Failed to save preferences' });
-    }
+  try {
+    const preferences = await prisma.preferences.create({
+      data: {
+        userId,
+        preferredGender,
+        minAge,
+        maxAge,
+        minHeight,
+        maxHeight,
+        preferredReligion,
+        preferredDiet,
+      },
+    });
+    return NextResponse.json(preferences, { status: 201 });
+  } catch (error) {
+    console.error('Error saving preferences:', error);
+    return NextResponse.json({ error: 'Failed to save preferences' }, { status: 500 });
   }
+}
 
-  return res.status(405).json({ error: 'Method not allowed' });
+export async function OPTIONS() {
+  return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
 }
