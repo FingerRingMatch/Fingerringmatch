@@ -60,7 +60,7 @@ const PaymentPage: React.FC = () => {
   ];
 
   const [selectedPlan, setSelectedPlan] = React.useState<string>('');
-
+console.log(selectedPlan)
   return (
     <div>
       <div className="min-h-screen relative overflow-hidden pt-8">
@@ -127,7 +127,6 @@ const PaymentPage: React.FC = () => {
                       </li>
                     ))}
                   </ul>
-
                   <CheckoutButton
                     onClick={() => setSelectedPlan(plan.name)}
                     amount={plan.price}

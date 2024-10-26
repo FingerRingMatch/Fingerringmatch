@@ -65,7 +65,6 @@ declare global {
 }
 
 const CheckoutButton: React.FC<CheckoutButtonProps> = ({
-    onClick,
     amount,
     currency,
     maxConnections,

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ConfirmDeleteDialog } from './ConfirmDeleteDialog';
 import { useImageManagement } from '@/hooks/useImageManagement';
-import { cn } from '@/lib/utils';
+
 
 export function ImageGrid() {
   const { images, loading, error, deleteImage } = useImageManagement();

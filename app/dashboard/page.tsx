@@ -3,17 +3,20 @@ import { useEffect, useState } from 'react';
 import { getAuth } from 'firebase/auth';
 import Navbar from '@/components/Navbar';
 
-interface UserProfilePageProps {
-  params: {
-    id: string; // Assuming id is a string, adjust if necessary
-  };
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  profilePic?: string;
+  subscriptionPlanId?: string;
+  subscriptionExpiry?: string;
 }
 
-const UserProfilePage: React.FC<UserProfilePageProps> = ({}) => {
+const UserProfilePage: React.FC<UserProfile> = ({}) => {
   const [data, setData] = useState({ pendingRequests: 0, totalConnections: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     const auth = getAuth();

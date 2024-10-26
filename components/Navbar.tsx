@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Bell, ChevronDown, Heart, Menu, Search, X } from 'lucide-react';
+import { Bell, ChevronDown, Heart, Menu, Search } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { User, LogOut, Settings, CreditCard } from 'lucide-react';
 import { ModalForm } from './Modal';
@@ -17,7 +17,7 @@ import Login from './Login';
 interface User {
   email: string;
   uid: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface Profile {

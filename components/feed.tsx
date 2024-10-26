@@ -581,8 +581,8 @@ const Home = () => {
               <div className="space-y-4">
                 {/* Show dummy profiles */}
                 {dummyProfiles.map((profile) => (
-                  <div onClick={() => router.push(`/plans`)}>
-                  <ProfileCard key={profile.id} profile={profile}/>
+                  <div  key={profile.id} onClick={() => router.push(`/plans`)}>
+                  <ProfileCard profile={profile}/>
                   </div>
                 ))}
 

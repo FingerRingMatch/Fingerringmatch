@@ -157,7 +157,7 @@ export default function ConnectionsPage() {
       const data: Message[] = await response.json();
       setMessages(data);
       scrollToBottom();
-    } catch (error) {
+    } catch {
       toast({
         variant: "destructive",
         title: "Error",
@@ -186,7 +186,7 @@ export default function ConnectionsPage() {
       setMessages([...messages, message]);
       setNewMessage('');
       scrollToBottom();
-    } catch (error) {
+    } catch {
       toast({
         variant: "destructive",
         title: "Error",
