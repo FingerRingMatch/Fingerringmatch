@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { adminAuth, adminStorage } from '@/lib/firebase-admin';
 import { headers } from 'next/headers';
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
     // Get authorization header
     const headersList = headers();

@@ -71,7 +71,8 @@ export default function ProfilePage() {
         profileData.age = calculateAge(profileData.dob);
         setProfile(profileData);
         console.log("Profile data:", profileData);
-        setIsConnected(data.isConnected); // Fetch connection status from API response
+        setIsConnected(data.isConnected);
+        console.log("Connection status:", isConnected) // Fetch connection status from API response
       } catch (error) {
         console.error('Error fetching profile:', error);
         setError(error instanceof Error ? error.message : 'Failed to fetch profile');
@@ -144,30 +145,13 @@ export default function ProfilePage() {
       // Show success message or update UI
     } catch (error) {
       setRequestError(error instanceof Error ? error.message : 'Failed to send connection request');
+      console.log(requestError)
     } finally {
       setRequestLoading(false);
     }
   };
 
-  const ConnectionButton = () => {
-    if (connectionStatus === 'connected') {
-      return (
-        <button disabled className="w-full bg-green-500">
-          Connected
-        </button>
-      );
-    }
 
-    if (connectionStatus === 'pending') {
-      return (
-        <button disabled className="w-full bg-yellow-500">
-          Request Pending
-        </button>
-      );
-    }
-
-
-  };
 
   const hasValidSubscription = (): boolean => {
     if (!user?.subscriptionPlanId) return false;

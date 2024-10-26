@@ -4,11 +4,10 @@ import Image from 'next/image';
 import { useAuth } from '@/context/authContext';
 import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Badge, Bell, ChevronDown, Heart, Menu, Search, X } from 'lucide-react';
+import { Bell, ChevronDown, Heart, Menu, Search, X } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { User, LogOut, Settings, CreditCard } from 'lucide-react';
 import { ModalForm } from './Modal';
@@ -31,13 +30,12 @@ const Navbar: React.FC = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   
   const handleLogout = () => {
     router.push('/');
     logout();
-    setIsMobileMenuOpen(false);
+
   };
 
   const toggleTooltip = () => {

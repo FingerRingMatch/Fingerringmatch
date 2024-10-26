@@ -14,11 +14,9 @@ import {
   Heart,
   Building2,
   IndianRupee,
-  Home as HomeIcon,
   Calendar
 } from 'lucide-react';
 
-// Enhanced types to include subscription-related fields
 interface Profile {
   id: string;
   firebaseUid: string;
@@ -46,6 +44,32 @@ interface CurrentUser {
   subscriptionExpiry?: string;
 }
 
+interface Connection {
+  connectedUser: {
+    id: string;
+  };
+}
+
+interface ConnectionsResponse {
+  connections: Connection[];
+}
+
+interface ProfilesResponse {
+  profiles: Profile[];
+}
+
+interface FilterState {
+  age: { min: number; max: number };
+  city: string;
+  language: string;
+  religion: string;
+  subCommunity: string;
+  qualification: string;
+  jobType: string;
+  income: { min: number; max: number };
+  livesWithFamily: string;
+}
+
 const Home = () => {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
@@ -54,7 +78,7 @@ const Home = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const router = useRouter();
 
-  const dummyProfiles = [
+  const dummyProfiles: Profile[] = [
     {
       id: 'dummy1',
       name: 'Priya Sharma',
@@ -108,7 +132,7 @@ const Home = () => {
     }
   ];
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState({
+  const [filter, setFilter] = useState<FilterState>({
     age: { min: 0, max: 100 },
     city: '',
     language: '',
@@ -121,7 +145,6 @@ const Home = () => {
   });
 
   // Fetch current user data
-
   useEffect(() => {
     let isMounted = true;
     const auth = getAuth();
@@ -137,7 +160,7 @@ const Home = () => {
         });
 
         if (!response.ok) throw new Error('Failed to fetch profile data');
-        const data = await response.json();
+        const data: CurrentUser = await response.json();
 
         if (isMounted) {
           setCurrentUser(data);
@@ -183,7 +206,7 @@ const Home = () => {
           throw new Error('Failed to fetch profiles');
         }
 
-        const [profilesData, connectionsData] = await Promise.all([
+        const [profilesData, connectionsData]: [ProfilesResponse, ConnectionsResponse] = await Promise.all([
           profilesResponse.json(),
           connectionsResponse.json()
         ]);
@@ -192,13 +215,13 @@ const Home = () => {
           // Create a Set of connected profile IDs for efficient lookup
           const connectedIds = new Set(
             connectionsData.connections?.map(
-              (conn: any) => conn.connectedUser.id
+              (conn) => conn.connectedUser.id
             ) || []
           );
 
           // Filter out connected profiles before setting state
           const availableProfiles = profilesData.profiles?.filter(
-            (profile: Profile) => !connectedIds.has(profile.id)
+            (profile) => !connectedIds.has(profile.id)
           ) || [];
 
           setProfiles(availableProfiles);

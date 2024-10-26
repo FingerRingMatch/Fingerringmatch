@@ -11,7 +11,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     });
     if (plan) return NextResponse.json(plan);
     else return NextResponse.json({ error: 'Subscription plan not found' }, { status: 404 });
-  } catch (error) {
+  } catch{
     return NextResponse.json({ error: 'Failed to fetch subscription plan' }, { status: 500 });
   }
 }
@@ -34,7 +34,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       },
     });
     return NextResponse.json(updatedPlan, { status: 200 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update subscription plan' }, { status: 500 });
   }
 }
@@ -47,7 +47,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       where: { id: String(id) },
     });
     return NextResponse.json({ message: 'Subscription plan deleted successfully' });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete subscription plan' }, { status: 500 });
   }
 }

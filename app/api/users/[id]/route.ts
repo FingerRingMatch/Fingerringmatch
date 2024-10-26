@@ -11,7 +11,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
     });
     if (user) return NextResponse.json(user);
     else return NextResponse.json({ error: 'User not found' }, { status: 404 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch user' }, { status: 500 });
   }
 }
@@ -26,7 +26,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       data: { name, email, phone, city },
     });
     return NextResponse.json(updatedUser, { status: 200 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });
   }
 }
@@ -37,7 +37,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   try {
     await prisma.user.delete({ where: { id: String(id) } });
     return NextResponse.json({ message: 'User deleted successfully' });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to delete user' }, { status: 500 });
   }
 }

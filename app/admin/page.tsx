@@ -1,9 +1,17 @@
-'use client';
 import React, { useEffect, useState } from 'react';
 import { Trash } from 'lucide-react'; // Adjust import if necessary
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  subscriptionPlan?: { name: string };
+  subscriptionExpiry?: string;
+  connectionsMade: number;
+}
+
 const AdminPage = () => {
-  const [users, setUsers] = useState<any[]>([]); // Initialize users state as an empty array
+  const [users, setUsers] = useState<User[]>([]); // Initialize users state with User type
   const [loading, setLoading] = useState(true); // Loading state for user fetch
   const [error, setError] = useState<string | null>(null); // Error state
 
@@ -41,11 +49,6 @@ const AdminPage = () => {
       year: 'numeric',
     };
     return new Intl.DateTimeFormat('en-GB', options).format(new Date(dateString));
-  };
-
-  const handleEdit = (userId: string) => {
-    console.log('Editing user with ID:', userId);
-    
   };
 
   const handleDelete = async (userId: string) => {

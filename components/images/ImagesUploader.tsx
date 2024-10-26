@@ -66,7 +66,7 @@ export function ImagesUploader() {
           setUploadingFiles(prev => prev.filter(f => f.id !== fileData.id));
         }, 2000);
 
-      } catch (error) {
+      } catch {
         setUploadingFiles(prev =>
           prev.map(f =>
             f.id === fileData.id

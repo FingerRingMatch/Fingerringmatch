@@ -19,15 +19,66 @@ interface UserData {
     phone: string;
 }
 
-const CheckoutButton: React.FC<CheckoutButtonProps> = ({onClick, amount, currency, maxConnections, price, name }) => {
+interface RazorpayResponse {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+}
+
+interface RazorpayOrder {
+    id: string;
+    amount: number;
+    currency: string;
+}
+
+interface VerificationResponse {
+    isOk: boolean;
+    message?: string;
+}
+
+// Razorpay types
+interface RazorpayOptions {
+    key: string;
+    amount: number;
+    currency: string;
+    name: string;
+    description: string;
+    order_id: string;
+    handler: (response: RazorpayResponse) => void;
+    prefill: {
+        name: string;
+        email: string;
+        contact: string;
+    };
+    theme: {
+        color: string;
+    };
+}
+
+// Declare Razorpay on window object
+declare global {
+    interface Window {
+        Razorpay: new (options: RazorpayOptions) => {
+            open: () => void;
+        };
+    }
+}
+
+const CheckoutButton: React.FC<CheckoutButtonProps> = ({
+    onClick,
+    amount,
+    currency,
+    maxConnections,
+    price,
+    name
+}) => {
     const [user, setUser] = useState<UserData | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);  // Start with false initially
+    const [loading, setLoading] = useState(false);
     const [isRazorpayLoaded, setIsRazorpayLoaded] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const router = useRouter();
 
-    // Separate authentication listener
     useEffect(() => {
         const auth = getAuth();
         const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -40,10 +91,9 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = ({onClick, amount, currenc
             }
         });
 
-        return () => unsubscribe(); // Cleanup subscription
+        return () => unsubscribe();
     }, []);
 
-    // Separate Razorpay loader
     useEffect(() => {
         if (!document.getElementById('razorpay-script')) {
             const script = document.createElement('script');
@@ -58,7 +108,7 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = ({onClick, amount, currenc
         }
     }, []);
 
-    const fetchUserProfile = async (uid: string) => {
+    const fetchUserProfile = async (uid: string): Promise<void> => {
         try {
             const response = await fetch('/api/profile', {
                 method: 'GET',
@@ -72,7 +122,7 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = ({onClick, amount, currenc
                 throw new Error('Failed to fetch user profile');
             }
 
-            const userData = await response.json();
+            const userData = await response.json() as UserData;
             
             if (!userData.id || !userData.name || !userData.email || !userData.phone) {
                 throw new Error('Please complete your profile before proceeding');
@@ -80,13 +130,13 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = ({onClick, amount, currenc
 
             setUser(userData);
             setError(null);
-        } catch (err: any) {
-            setError(err.message || 'Failed to load user profile');
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to load user profile');
             console.error('Error fetching user:', err);
         }
     };
 
-    const handlePayment = async () => {
+    const handlePayment = async (): Promise<void> => {
         if (!isAuthenticated) {
             setError('Please log in to continue');
             return;
@@ -125,20 +175,20 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = ({onClick, amount, currenc
                 throw new Error('Failed to create order');
             }
 
-            const order = await response.json();
+            const order = await response.json() as RazorpayOrder;
 
             if (!order?.id) {
                 throw new Error('Invalid order response');
             }
 
-            const options = {
+            const options: RazorpayOptions = {
                 key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID!,
                 amount: order.amount,
                 currency: order.currency,
                 name: 'FR Match',
                 description: 'Payment for the service',
                 order_id: order.id,
-                handler: async function (response: any) {
+                handler: async function (response: RazorpayResponse) {
                     try {
                         const res = await fetch("/api/verify-order", {
                             method: "POST",
@@ -158,12 +208,12 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = ({onClick, amount, currenc
                             }),
                         });
 
-                        const data = await res.json();
+                        const data = await res.json() as VerificationResponse;
                         if (data.isOk) {
                             alert("Payment successful");
                             router.push('/Feed');
                         } else {
-                            throw new Error("Payment verification failed");
+                            throw new Error(data.message || "Payment verification failed");
                         }
                     } catch (err) {
                         alert("Payment verification failed");
@@ -180,10 +230,10 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = ({onClick, amount, currenc
                 },
             };
 
-            const rzp = new (window as any).Razorpay(options);
+            const rzp = new window.Razorpay(options);
             rzp.open();
-        } catch (err: any) {
-            setError(err.message || 'Payment processing failed');
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Payment processing failed');
             console.error('Payment error:', err);
         } finally {
             setLoading(false);

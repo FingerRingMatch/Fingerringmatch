@@ -9,8 +9,7 @@ interface UserProfilePageProps {
   };
 }
 
-const UserProfilePage: React.FC<UserProfilePageProps> = ({ params }) => {
-  const userId = params.id; // Get the user ID from the URL parameters
+const UserProfilePage: React.FC<UserProfilePageProps> = ({}) => {
   const [data, setData] = useState({ pendingRequests: 0, totalConnections: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

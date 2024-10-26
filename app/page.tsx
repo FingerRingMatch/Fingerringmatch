@@ -52,7 +52,7 @@ export default function Home() {
           const data: Profile = await response.json();
           setProfile(data);
         } catch (err) {
-          setError(err instanceof Error ? err.message : 'An error occurred');
+          setError(err instanceof Error ? err.message : error);
         }
       } else {
         setError("Please sign in to view your connections");

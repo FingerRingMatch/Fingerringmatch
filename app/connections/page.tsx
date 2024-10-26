@@ -2,11 +2,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { User, Search,Send, Check, CheckCheck, X, Menu, Trash } from 'lucide-react';
-import { getAuth } from 'firebase/auth';
+import { User, Search, Send, Check, CheckCheck, X, Menu, Trash } from 'lucide-react';
+import { getAuth, User as FirebaseUser } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
-
 
 interface ConnectedUser {
   id: string;
@@ -35,24 +34,34 @@ interface Message {
   status?: 'sent' | 'delivered' | 'read';
 }
 
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  profilePic?: string;
+  subscriptionPlanId?: string;
+  subscriptionExpiry?: string;
+}
+
 export default function ConnectionsPage() {
   const { toast } = useToast();
   const [connections, setConnections] = useState<Connection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [selectedConnection, setSelectedConnection] = useState<ConnectedUser | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [showSidebar, setShowSidebar] = useState(true);
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const messageInputRef = useRef<HTMLInputElement | null>(null);
-const router = useRouter()
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messageInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+
   // Fetch user and connections
   useEffect(() => {
     const auth = getAuth();
-    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
+    const unsubscribe = auth.onAuthStateChanged(async (currentUser: FirebaseUser | null) => {
       if (currentUser) {
         try {
           const response = await fetch('/api/profile', {
@@ -65,7 +74,7 @@ const router = useRouter()
 
           if (!response.ok) throw new Error('Failed to fetch profile data');
 
-          const data = await response.json();
+          const data: UserProfile = await response.json();
           setUser(data);
         } catch (err) {
           setError(err instanceof Error ? err.message : 'An error occurred');
@@ -91,7 +100,7 @@ const router = useRouter()
         throw new Error('Failed to fetch connections');
       }
 
-      const data = await response.json();
+      const data: { connections: Connection[] } = await response.json();
       setConnections(data.connections);
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to fetch connections');
@@ -116,7 +125,7 @@ const router = useRouter()
       });
 
       if (!response.ok) {
-        const data = await response.json();
+        const data: { error: string } = await response.json();
         throw new Error(data.error || 'Failed to remove connection');
       }
 
@@ -135,18 +144,17 @@ const router = useRouter()
     }
   };
 
-  // Fetch messages for the selected connection
   const fetchMessages = async (recipientId: string, senderId: string) => {
     try {
       const response = await fetch(`/api/messages/${recipientId}`, {
         method: 'GET',
         headers: {
-          'senderId': senderId, // If required
+          'senderId': senderId,
         },
       });
       if (!response.ok) throw new Error('Failed to fetch messages');
   
-      const data = await response.json();
+      const data: Message[] = await response.json();
       setMessages(data);
       scrollToBottom();
     } catch (error) {
@@ -157,10 +165,9 @@ const router = useRouter()
       });
     }
   };
-  
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !selectedConnection) return;
+    if (!newMessage.trim() || !selectedConnection || !user) return;
   
     try {
       const response = await fetch('/api/messages/send', {
@@ -175,7 +182,7 @@ const router = useRouter()
   
       if (!response.ok) throw new Error('Failed to send message');
   
-      const message = await response.json();
+      const message: Message = await response.json();
       setMessages([...messages, message]);
       setNewMessage('');
       scrollToBottom();
@@ -187,18 +194,16 @@ const router = useRouter()
       });
     }
   };
+
   const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Trigger message fetch when a connection is selected
   useEffect(() => {
-    if (selectedConnection) {
+    if (selectedConnection && user?.id) {
       fetchMessages(selectedConnection.id, user.id);
     }
-  }, [selectedConnection]);
+  }, [selectedConnection, user]);
 
   const toggleSidebar = () => {
     setShowSidebar(!showSidebar);
@@ -212,8 +217,6 @@ const router = useRouter()
     }
   };
 
-
-
   const filteredConnections = connections.filter(connection => 
     connection.connectedUser.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -222,16 +225,18 @@ const router = useRouter()
     const date = new Date(dateString);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   };
+
   const hasValidSubscription = (): boolean => {
-    if (!user.subscriptionPlanId) return false;
-    if (!user.subscriptionExpiry) return false;
+    if (!user?.subscriptionPlanId) return false;
+    if (!user?.subscriptionExpiry) return false;
     
     const expiryDate = new Date(user.subscriptionExpiry);
     const currentDate = new Date();
     
     return expiryDate > currentDate;
   };
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -412,11 +417,11 @@ const router = useRouter()
               {messages.map((msg) => (
                 <div
                   key={msg.id}
-                  className={`flex ${msg.senderId === user.id ? 'justify-end' : 'justify-start'}`}
+                  className={`flex ${msg.senderId === user?.id ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
                     className={`max-w-[85%] sm:max-w-[70%] rounded-lg p-3 ${
-                      msg.senderId === user.id
+                      msg.senderId === user?.id
                         ? 'bg-blue-500 text-white rounded-br-none'
                         : 'bg-white text-gray-800 rounded-bl-none'
                     }`}
@@ -426,7 +431,7 @@ const router = useRouter()
                       <span className="text-xs opacity-75">
                         {formatMessageTime(msg.createdAt)}
                       </span>
-                      {msg.senderId === user.id && (
+                      {msg.senderId === user?.id && (
                         <span className="ml-1">
                           {msg.status === 'read' ? (
                             <CheckCheck className="w-4 h-4 text-blue-200" />
