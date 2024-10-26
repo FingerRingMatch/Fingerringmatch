@@ -52,7 +52,9 @@ export const useImageManagement = () => {
         const data = await response.json();
         
         if (!response.ok) throw new Error(data.error);
-        // Sort images by order if it exists, otherwise by createdAt
+        
+        console.log('Fetched images:', data.images); // Log fetched images
+  
         const sortedImages = data.images.sort((a: UploadedImage, b: UploadedImage) => 
           (a.order ?? Infinity) - (b.order ?? Infinity) || 
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -69,10 +71,10 @@ export const useImageManagement = () => {
         setLoading(false);
       }
     };
-
+  
     fetchImages();
   }, [user]);
-
+  
   const uploadImages = async (files: File[], onProgress?: UploadProgressCallback) => {
     if (!user) {
       setError('You must be logged in to upload images');
