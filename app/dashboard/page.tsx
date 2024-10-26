@@ -12,7 +12,7 @@ interface UserProfile {
   subscriptionExpiry?: string;
 }
 
-const UserProfilePage: React.FC<UserProfile> = () => {
+const UserProfilePage: React.FC = () => { // Remove UserProfile type
   const [data, setData] = useState({ pendingRequests: 0, totalConnections: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -74,25 +74,24 @@ const UserProfilePage: React.FC<UserProfile> = () => {
 
   return (
     <div>
-    <Navbar/>
-    <div className="min-h-screen bg-gray-100 p-6">
-     
-      <h1 className="text-3xl font-bold my-6 text-center">User Dashboard</h1>
+      <Navbar/>
+      <div className="min-h-screen bg-gray-100 p-6">
+        <h1 className="text-3xl font-bold my-6 text-center">User Dashboard</h1>
 
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">Profile Overview</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-blue-500 text-white p-4 rounded-lg shadow">
-            <h3 className="text-lg font-medium">Pending Connection Requests</h3>
-            <p className="text-2xl font-bold">{data.pendingRequests}</p>
-          </div>
-          <div className="bg-green-500 text-white p-4 rounded-lg shadow">
-            <h3 className="text-lg font-medium">Total Connected People</h3>
-            <p className="text-2xl font-bold">{data.totalConnections}</p>
+        <div className="bg-white shadow-md rounded-lg p-6">
+          <h2 className="text-xl font-semibold mb-4">Profile Overview</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-blue-500 text-white p-4 rounded-lg shadow">
+              <h3 className="text-lg font-medium">Pending Connection Requests</h3>
+              <p className="text-2xl font-bold">{data.pendingRequests}</p>
+            </div>
+            <div className="bg-green-500 text-white p-4 rounded-lg shadow">
+              <h3 className="text-lg font-medium">Total Connected People</h3>
+              <p className="text-2xl font-bold">{data.totalConnections}</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 };
