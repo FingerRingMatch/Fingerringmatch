@@ -6,32 +6,119 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
-
 model User {
-  id              String   @id @default(auto()) @map("_id") @db.ObjectId
-  firebaseId      String   @unique
-  name            String
-  dob             DateTime
-  gender          String
-  religion        String
-  language        String
-  phone           String
-  email           String   @unique
-  city            String?
-  liveWithFamily  String?
-  familyCity      String?
-  maritalStatus   String?
-  diet            String?
-  height          String?
-  subCommunity    String?
-  qualification   String?
-  collegeName     String?
-  jobType         String?
-  role            String?
-  company         String?
-  incomeRange     String?
-  bio             String?
-  profilePic      String?  // URL to Firebase Storage
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                 String           @id @default(auto()) @map("_id") @db.ObjectId // Unique user ID
+  firebaseId         String           @unique // Firebase unique ID
+  name               String // User's name
+  dob                DateTime // Date of birth
+  gender             String // Gender
+  religion           String // Religion
+  language           String // Preferred language
+  phone              String // Phone number
+  email              String           @unique // User's email
+  city               String? // City of residence
+  liveWithFamily     String? // Family status
+  familyCity         String? // Family city
+  maritalStatus      String? // Marital status
+  diet               String? // Dietary preferences
+  height             String? // Height
+  subCommunity       String? // Sub-community
+  qualification      String? // Educational qualification
+  collegeName        String? // Name of the college
+  jobType            String? // Job type (e.g., full-time, part-time)
+  role               String? // Job role
+  company            String? // Company name
+  incomeRange        String? // Income range
+  bio                String? // User's bio
+  profilePic         String? // URL to Firebase Storage for profile picture
+  subscriptionPlan   SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id]) // Relation to subscription plan
+  subscriptionPlanId String?          @db.ObjectId // Foreign key to SubscriptionPlan
+  connectionsMade    Int              @default(0) // Number of connections the user has made, default to 0
+  subscriptionExpiry DateTime? // Date when the subscription expires
+  createdAt          DateTime         @default(now()) // Timestamp for account creation
+  updatedAt          DateTime         @updatedAt // Timestamp for last update
+
+  // Relations for connection requests
+  sentConnectionRequests ConnectionRequest[] @relation("SentRequests")
+  receivedConnectionRequests ConnectionRequest[] @relation("ReceivedRequests")
+
+  // Relation for messages
+  sentMessages    Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+  // Relation to preferences
+  preferences     Preferences? 
+   images UserImage[]
+} 
+
+model UserImage {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  user      User     @relation(fields: [userId], references: [id])
+  imageUrl  String   // Firebase Storage URL
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Preferences {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId // Unique ID for preferences
+  userId            String   @unique @db.ObjectId // Foreign key to User
+  preferredGender   String?  // Preferred gender (e.g., Male, Female, Any)
+  minAge            Int?     // Minimum age for matches
+  maxAge            Int?     // Maximum age for matches
+  minHeight         Int?     // Minimum height for matches (in cm)
+  maxHeight         Int?     // Maximum height for matches (in cm)
+  preferredReligion  String? // Preferred religion
+  preferredDiet     String?  // Preferred dietary restrictions
+  createdAt         DateTime @default(now()) // Timestamp for preferences creation
+  updatedAt         DateTime @updatedAt // Timestamp for last update
+
+  // Relation to User
+  user             User @relation(fields: [userId], references: [id]) // Define the relationship
+}
+
+model SubscriptionPlan {
+  id             String @id @default(auto()) @map("_id") @db.ObjectId // Unique plan ID
+  name           String? // Plan name, e.g., "Gold", "Platinum"
+  price          Float? // Price of the plan
+  duration       Int? // Duration in months (e.g., 3 for your case)
+  maxConnections Int? // Maximum number of connections allowed
+  discount       String // Discount details
+  originalPrice  String? // Original price for reference
+  orderId        String // Ensure that this field exists if you are using it
+  razorpayPaymentId String
+  razorpaySignature String
+  timestamp      DateTime @default(now())
+  status         String
+
+  users User[] // Relation to users under this subscription plan
+}
+
+model ConnectionRequest {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId // Unique request ID
+  fromUserId String   @db.ObjectId // ID of the user sending the request
+  toUserId   String   @db.ObjectId // ID of the user receiving the request
+  status     String   // Status of the request (e.g., 'pending', 'accepted', 'declined')
+  createdAt  DateTime @default(now()) // Timestamp for request creation
+
+  fromUser   User     @relation("SentRequests", fields: [fromUserId], references: [id])
+  toUser     User     @relation("ReceivedRequests", fields: [toUserId], references: [id])
+
+  @@index([fromUserId])
+  @@index([toUserId])
+}
+
+// New model for messages
+model Message {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId // Unique message ID
+  content     String   // Content of the message
+  createdAt   DateTime @default(now()) // Timestamp when the message was created
+  senderId    String   @db.ObjectId // ID of the user sending the message
+  recipientId String   @db.ObjectId // ID of the user receiving the message
+  
+  sender      User     @relation("SentMessages", fields: [senderId], references: [id]) // Relation to the sender
+  recipient   User     @relation("ReceivedMessages", fields: [recipientId], references: [id]) // Relation to the recipient
+
+  @@index([senderId])
+  @@index([recipientId])
 }

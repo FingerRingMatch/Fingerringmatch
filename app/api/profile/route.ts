@@ -1,12 +1,12 @@
-// app/api/profile/[uid]/route.ts
+// app/api/profile/route.ts
 
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function GET(req: Request, { params }: { params: { uid: string } }) {
-  const { uid } = params;
+export async function GET(req: Request) {
+  const uid = req.headers.get('uid'); // Get the UID from the request headers
 
   if (!uid) {
     return NextResponse.json({ message: 'Invalid user UID' }, { status: 400 });
@@ -15,7 +15,7 @@ export async function GET(req: Request, { params }: { params: { uid: string } })
   try {
     const user = await prisma.user.findUnique({
       where: {
-        firebaseId: uid, // Assuming 'firebaseUid' is the field in your Prisma schema for Firebase UID
+        firebaseId: uid, // Assuming 'firebaseId' is the field in your Prisma schema for Firebase UID
       },
     });
 
@@ -27,5 +27,5 @@ export async function GET(req: Request, { params }: { params: { uid: string } })
   } catch (error) {
     console.error('Error fetching user:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
-  } 
+  }
 }

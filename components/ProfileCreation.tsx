@@ -1,5 +1,5 @@
 'use client';
-import React, { useState} from 'react';
+import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage, FormikHelpers, FormikTouched, FormikErrors } from 'formik';
 import * as Yup from 'yup';
 import { Transition } from '@headlessui/react';
@@ -53,7 +53,28 @@ const CreateProfile: React.FC = () => {
   const totalSteps = 4;
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const {formData, setFormData} = useFormContext()
+  const { formData, setFormData } = useFormContext()
+  const [incomeType, setIncomeType] = useState('monthly'); // State to track income type
+
+    // Monthly income options
+    const monthlyOptions = [
+      { value: '', label: 'Select' },
+      { value: 'below-30000', label: 'Below 30k' },
+      { value: '30000-50000', label: '30k - 50k' },
+      { value: '50000-70000', label: '50k - 70k' },
+      { value: '70000-100000', label: '70k - 100k' },
+      { value: 'above-100000', label: 'Above 100k' },
+    ];
+  
+    // Annual income options
+    const annualOptions = [
+      { value: '', label: 'Select' },
+      { value: 'below-500000', label: 'Below 5 LPA' }, // 30k/month * 12
+      { value: '500000-1000000', label: '5 - 10 LPA' }, // 30k-50k/month * 12
+      { value: '1000000-2000000', label: '10 - 20 LPA' }, // 50k-70k/month * 12
+      { value: 'above-2000000', label: 'Above 20 LPA' }, // Above 100k/month * 12
+    ];
+  
 
   // Initial values
   const initialValues: FormValues = {
@@ -84,7 +105,7 @@ const CreateProfile: React.FC = () => {
     setSubmitting(false);
     setShowSignUpModal(true);
 
-   
+
   };
 
   const nextStep = (values: FormValues, helpers: { setTouched: (touched: FormikTouched<FormValues>) => void; setErrors: (errors: FormikErrors<FormValues>) => void }) => {
@@ -140,7 +161,14 @@ const CreateProfile: React.FC = () => {
     return errors;
   };
 
-  const heightOptions = Array.from({ length: 60 }, (_, i) => i + 140).map((h) => `${Math.floor(h / 100)}.${h % 100}`);
+  const heightOptions = Array.from({ length: 49 }, (_, i) => {
+    const feet = 3 + Math.floor(i / 12);         // Start at 4 feet, increasing every 12 inches
+    const inches = i % 12;                       // Increment inches up to 11
+    const value = `${feet}.${inches < 10 ? "0" : ""}${inches}`; // Value as decimal (e.g., "5.07")
+    return { value, label: `${feet}'${inches}"` }; // Label as feet and inches
+  });
+  
+
 
   return (
     <div className="min-h-screen bg-primaryPink flex items-center justify-center">
@@ -202,7 +230,6 @@ const CreateProfile: React.FC = () => {
                       <Field name="maritalStatus" as="select" className="input-field border rounded-md p-2 w-full">
                         <option value="">Select</option>
                         <option value="single">Single</option>
-                        <option value="married">Married</option>
                         <option value="divorced">Divorced</option>
                         <option value="widowed">Widowed</option>
                       </Field>
@@ -221,15 +248,16 @@ const CreateProfile: React.FC = () => {
                     </div>
 
                     <div className="mb-4">
-                      <label className="block text-gray-600 mb-1">Height (cm)</label>
+                      <label className="block text-gray-600 mb-1">Height</label>
                       <Field as="select" name="height" className="input-field border rounded-md p-2 w-full">
                         <option value="">Select</option>
                         {heightOptions.map((h) => (
-                          <option key={h} value={h}>{h} cm</option>
+                          <option key={h.value} value={h.value}>{h.label}</option>
                         ))}
                       </Field>
                       <ErrorMessage name="height" component="span" className="text-red-500 text-sm" />
                     </div>
+
 
                     <div className="mb-4">
                       <label className="block text-gray-600 mb-1">Sub-Community</label>
@@ -270,9 +298,12 @@ const CreateProfile: React.FC = () => {
                       <label className="block text-gray-600 mb-1">Job Type</label>
                       <Field name="jobType" as="select" className="input-field border rounded-md p-2 w-full">
                         <option value="">Select</option>
-                        <option value="full-time">Full-Time</option>
-                        <option value="part-time">Part-Time</option>
-                        <option value="internship">Internship</option>
+                       <option value="private job">Private job</option>
+                       <option value="govt job">Government Job</option>
+                       <option value="civil/defense services">Civil/Defense services</option>
+                       <option value="business">Business</option>
+                        <option value="unemployed">Unemployed</option>
+
                       </Field>
                       <ErrorMessage name="jobType" component="span" className="text-red-500 text-sm" />
                     </div>
@@ -290,17 +321,43 @@ const CreateProfile: React.FC = () => {
                     </div>
 
                     <div className="mb-4">
-                      <label className="block text-gray-600 mb-1">Income Range</label>
-                      <Field name="incomeRange" as="select" className="input-field border rounded-md p-2 w-full">
-                        <option value="">Select</option>
-                        <option value="below-30k">Below 30k</option>
-                        <option value="30k-50k">30k - 50k</option>
-                        <option value="50k-70k">50k - 70k</option>
-                        <option value="70k-100k">70k - 100k</option>
-                        <option value="above-100k">Above 100k</option>
-                      </Field>
-                      <ErrorMessage name="incomeRange" component="span" className="text-red-500 text-sm" />
-                    </div>
+      <label className="block text-gray-600 mb-1">Income Range</label>
+      
+      {/* Toggle Button */}
+      <div className="flex items-center mb-2">
+        <label className="mr-4">
+          <input
+            type="radio"
+            value="monthly"
+            checked={incomeType === 'monthly'}
+            onChange={() => setIncomeType('monthly')}
+          />
+          Monthly
+        </label>
+        <label>
+          <input
+            type="radio"
+            value="annual"
+            checked={incomeType === 'annual'}
+            onChange={() => setIncomeType('annual')}
+          />
+          Annual
+        </label>
+      </div>
+
+      {/* Dropdown for Income Range */}
+      <Field name="incomeRange" as="select" className="input-field border rounded-md p-2 w-full">
+        {incomeType === 'monthly'
+          ? monthlyOptions.map(option => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))
+          : annualOptions.map(option => (
+              <option key={option.value} value={option.value}>{option.label}</option>
+            ))
+        }
+      </Field>
+      <ErrorMessage name="incomeRange" component="span" className="text-red-500 text-sm" />
+    </div>
                   </div>
                 )}
               </Transition>

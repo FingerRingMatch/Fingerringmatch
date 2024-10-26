@@ -4,7 +4,7 @@ import { Formik, Form, Field, ErrorMessage, FormikHelpers, FormikTouched, Formik
 import * as Yup from 'yup';
 import { Transition } from '@headlessui/react';
 import Image from 'next/image';
-import { useParams, useRouter } from 'next/navigation';
+import {  useRouter } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from '@/context/authContext';
@@ -55,8 +55,7 @@ const validationSchema = Yup.object({
 });
 
 const UpdateProfile: React.FC = () => {
-  const params = useParams<{ uid: string }>();
-  const uid = params.uid;
+
   const [step, setStep] = useState(1);
   const totalSteps = 4;
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -78,7 +77,12 @@ const UpdateProfile: React.FC = () => {
     if (!user) return;
 
     try {
-      const response = await fetch(`/api/profile/${uid}`);
+      const response = await fetch(`/api/profile`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'uid': user.uid, // Pass the UID in the headers
+        },
+      });
       if (!response.ok) throw new Error('Failed to fetch profile');
       const data: ProfileData = await response.json();
       
@@ -159,7 +163,7 @@ const UpdateProfile: React.FC = () => {
 
       // Upload new profile picture if provided
       if (values.profilePic) {
-        const fileRef = ref(storage, `profile-pics/${uid}/${values.profilePic.name}`);
+        const fileRef = ref(storage, `profile-pics/${profileData?.uid}/${values.profilePic.name}`);
         await uploadBytes(fileRef, values.profilePic);
         profilePicUrl = await getDownloadURL(fileRef);
       }
@@ -168,15 +172,15 @@ const UpdateProfile: React.FC = () => {
       const updateData: Partial<ProfileData> = {
         ...values,
         profilePicUrl,
-        uid,
       };
 
       delete updateData.profilePicUrl; // Remove the File object before sending to API
 
-      const response = await fetch(`/api/profile/update/${uid}`, {
+      const response = await fetch(`/api/profile/update`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'uid': user.uid,
         },
         body: JSON.stringify(updateData),
       });
@@ -188,7 +192,7 @@ const UpdateProfile: React.FC = () => {
         description: "Profile updated successfully",
       });
 
-      router.push(`/profile/${uid}`);
+      router.push(`/profile`);
     } catch (error) {
       toast({
         title: `Error: ${error}`,

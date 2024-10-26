@@ -14,7 +14,7 @@ export default function Page() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         // Redirect to dashboard if user is authenticated
-        router.push('/Feed');
+        router.push('/plans');
       } else {
         // If user is not logged in, stop loading and show the profile creation page
         setLoading(false);

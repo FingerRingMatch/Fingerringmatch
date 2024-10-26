@@ -2,15 +2,12 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
 
-export async function PUT(
-  request: Request,
-  { params }: { params: { uid: string } }
-) {
+export async function PUT(request: Request) {
   try {
-    const uid = params.uid;
+    const uid = request.headers.get('uid');
     if (!uid) {
       return NextResponse.json(
-        { error: 'ID is required' },
+        { error: 'UID is required in headers' },
         { status: 400 }
       );
     }
@@ -42,7 +39,6 @@ export async function PUT(
   } catch (error) {
     console.error('Profile update error:', error);
     
-    // Check if error is due to record not found
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2025') {
         return NextResponse.json(

@@ -1,6 +1,6 @@
 // lib/auth.ts
 import { auth } from './firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, sendPasswordResetEmail } from 'firebase/auth';
 
 const provider = new GoogleAuthProvider();
 
@@ -16,6 +16,11 @@ export const signInWithGoogle = async () => {
   return await signInWithPopup(auth, provider);
 };
 
+export const sendPasswordReset = async (email: string) => {
+  return await sendPasswordResetEmail(auth, email);
+};
 export const signOut = async () => {
   return await auth.signOut();
 };
+
+export { auth };

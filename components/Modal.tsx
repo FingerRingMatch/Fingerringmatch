@@ -229,7 +229,7 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
                                         <h3 className="text-xl font-semibold mb-4">Gender</h3>
                                         <div className="space-y-2">
                                             <div className="flex flex-wrap space-x-4">
-                                                {['male', 'female', 'other'].map((gender) => (
+                                                {['male', 'female'].map((gender) => (
                                                     <label key={gender} className="flex items-center space-x-2 text-lg">
                                                         <Field
                                                             type="radio"
@@ -390,7 +390,7 @@ export const ModalForm: React.FC<ModalFormProps> = ({ onClose, onSubmit }) => {
                                                 <Field
                                                     type="tel"
                                                     name="phone"
-                                                    placeholder="Phone"
+                                                    placeholder="Phone" maxLength={10}
                                                     className="w-full bg-white text-gray-700 border border-gray-300 rounded-md py-2 px-3 outline-none focus:ring-2 focus:ring-primaryPink"
                                                 />
                                                 <ErrorMessage name="phone" component="div" className="text-red-500 text-sm mt-1" />

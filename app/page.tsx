@@ -7,18 +7,20 @@ import { motion } from "framer-motion";
 import React, { useState, useEffect } from 'react';
 import Footer from "@/components/Footer";
 import { useRouter } from 'next/navigation';
-import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '@/lib/firebase'; // Import your Firebase instance
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+
+interface Profile {
+  subscriptionPlanId: string;
+  subscriptionExpiry: string;
+  // Add other profile properties here as needed
+}
 
 const LoadingAnimation = () => {
   return (
-    <div className="relative w-20 h-20 flex items-center justify-center">
-      {/* Logo Image */}
-      <Image src="/logo.jpg" height={150} width={150} alt="Logo" priority className="rounded-full" />
-
-      {/* Rotating Ring */}
+    <div className="relative w-60 h-60 flex items-center justify-center">
+      <Image src="/images/LoadingLogo1.jpg" height={200} width={200} alt="Logo" priority className="rounded-full" />
       <motion.div
-        className="absolute w-32 h-32 border-4 m-2 border-t-transparent border-white rounded-full"
+        className="absolute w-64 h-64 border-4 m-2 border-t-transparent border-white rounded-full"
         animate={{ rotate: 360 }}
         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
       />
@@ -29,25 +31,58 @@ const LoadingAnimation = () => {
 export default function Home() { 
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Check if user is authenticated
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // Redirect to dashboard if user is authenticated
-        router.push('/plans');
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        try {
+          const response = await fetch('/api/profile', {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'uid': currentUser.uid,
+            },
+          });
+
+          if (!response.ok) throw new Error('Failed to fetch profile data');
+
+          const data: Profile = await response.json();
+          setProfile(data);
+        } catch (err) {
+          setError(err instanceof Error ? err.message : 'An error occurred');
+        }
       } else {
-        // Simulate loading animation before showing content
-        const loadSections = async () => {
-          await new Promise(resolve => setTimeout(resolve, 1600));
-          setIsLoading(false);
-        };
-        loadSections();
+        setError("Please sign in to view your connections");
+        setIsLoading(false);
       }
     });
 
     return () => unsubscribe();
-  }, [router]);
+  }, []);
+
+  useEffect(() => {
+    if (profile) {
+      if (hasValidSubscription()) {
+        router.push('/Feed'); // Redirect to Feed if subscribed
+      } else {
+        router.push('/plans'); // Redirect to Plans if unsubscribed
+      }
+    } else {
+      setIsLoading(false); // Stop loading if no profile is present
+    }
+  }, [profile, router]);
+
+  const hasValidSubscription = (): boolean => {
+    if (!profile?.subscriptionPlanId || !profile?.subscriptionExpiry) return false;
+
+    const expiryDate = new Date(profile.subscriptionExpiry);
+    const currentDate = new Date();
+
+    return expiryDate > currentDate;
+  };
 
   if (isLoading) {
     return (

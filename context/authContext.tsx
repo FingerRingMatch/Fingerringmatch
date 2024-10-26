@@ -6,7 +6,8 @@ import { onAuthStateChanged, User, signOut } from 'firebase/auth';
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  logout: () => Promise<void>; // Add the logout function here
+  logout: () => Promise<void>;
+  getIdToken: () => Promise<string | null>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,8 +29,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await signOut(auth);
   };
 
+  // Add getIdToken function to get the current user's ID token
+  const getIdToken = async () => {
+    if (!user) return null;
+    try {
+      return await user.getIdToken();
+    } catch (error) {
+      console.error('Error getting ID token:', error);
+      return null;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, logout }}> {/* Include logout here */}
+    <AuthContext.Provider value={{ user, loading, logout, getIdToken }}>
       {children}
     </AuthContext.Provider>
   );
