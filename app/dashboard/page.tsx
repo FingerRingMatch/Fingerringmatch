@@ -12,7 +12,7 @@ interface UserProfile {
   subscriptionExpiry?: string;
 }
 
-const UserProfilePage: React.FC<UserProfile> = ({}) => {
+const UserProfilePage: React.FC<UserProfile> = () => {
   const [data, setData] = useState({ pendingRequests: 0, totalConnections: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
